@@ -7,14 +7,20 @@ target_link_libraries(etl_run INTERFACE etl)
 
 
 add_library(crt0 STATIC crt1.cpp)
-add_library(sched STATIC sched_low.cpp)
 
 option(CONFIG_CACHED_ASM "Use asm" ON)
 if(CONFIG_CACHED_ASM)
 target_sources(crt0 PRIVATE crt0.S)
-target_sources(sched PRIVATE sched_asm.S)	
 else()
 target_sources(crt0 PRIVATE crt0.cc)
+endif()
+
+
+add_library(sched STATIC sched_low.cpp)
+
+if(CONFIG_CACHED_ASM)
+target_sources(sched PRIVATE sched_asm.S)	
+else()
 target_sources(sched PRIVATE sched_asm.cc)	
 endif()
 
