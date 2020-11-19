@@ -22,8 +22,9 @@ _ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvvE:
 	movl	24(%esp), %edx
 	movl	28(%esp), %ecx
 #APP
-# 21 "sched_asm.cc" 1
+# 22 "sched_asm.cc" 1
 	movl %esp, (%eax)
+	switchcontext_thread_pc:
 	movl %edx, %esp
 	jecxz .L2
 	push $0
@@ -35,7 +36,7 @@ _ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvvE:
 .L2:
 .L3:
 #APP
-# 23 "sched_asm.cc" 1
+# 24 "sched_asm.cc" 1
 	sti
 # 0 "" 2
 #NO_APP

@@ -12,6 +12,7 @@ BezBios::Sched::m32ngro::
 switchcontext_int(void **prev_s, void *next_s, void (*entry_s)()) {
 	asm goto (
 			"movl %%esp, (%0)\n\t"
+			"switchcontext_thread_pc:\n\t"
 			"movl %1, %%esp\n\t"
 			"jecxz %l4\n\t"
 			"push %3\n\t" // we want GPF
