@@ -30,8 +30,9 @@ target_link_libraries(sched sched_api etl_run)
 function(add_executable target_name)
 	set(THISDIR ${CMAKE_SOURCE_DIR}/x86-32-nofp-general-regs-only)
 	_add_executable(${target_name} ${ARGN})
-	target_link_options(${target_name} PUBLIC 
-		-m32 -nostdlib -T ${THISDIR}/multiboot.ld -static)
+	target_link_options(${target_name} PUBLIC
+		-m32 -nostdlib -T ${THISDIR}/multiboot.ld -static
+		-Wl,-Map=$<TARGET_FILE:${target_name}>.map)
 	set_target_properties(${target_name} PROPERTIES 
 		LINK_DEPENDS ${THISDIR}/multiboot.ld)
 	add_custom_command(
