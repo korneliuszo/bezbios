@@ -21,7 +21,7 @@ int bezbios_main();
 
 int second_stack[4096];
 
-void second()
+void second(void *)
 {
 	bezbios_low_write_serial('2');
 	bezbios_sched_switch_context(0);
@@ -32,7 +32,8 @@ void second()
 int bezbios_main()
 {
 	int stid=bezbios_sched_create_task(second,
-			&second_stack[sizeof(second_stack)/sizeof(*second_stack)-1]);
+			&second_stack[sizeof(second_stack)/sizeof(*second_stack)-1],
+			nullptr);
 	bezbios_low_write_serial('1');
 	bezbios_sched_switch_context(stid);
 	bezbios_low_write_serial('3');

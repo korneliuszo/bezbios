@@ -9,17 +9,18 @@
 
 void
 BezBios::Sched::m32ngro::
-switchcontext_int(void **prev_s, void *next_s, void (*entry_s)()) {
+switchcontext_int(void **prev_s, void *next_s, void (*entry_s)(void *),void * val_s) {
 	asm goto (
 			"movl %%esp, (%0)\n\t"
 			"switchcontext_thread_pc:\n\t"
 			"movl %1, %%esp\n\t"
-			"jecxz %l4\n\t"
+			"jecxz %l5\n\t"
 			"push %3\n\t" // we want GPF
+			"push %4\n\t"
 			"sti\n\t"
 			"jmp %2\n\t"
-			: : "r" (prev_s), "r" (next_s), "ecx"(entry_s), "i"(nullptr)
-			: "ebx","esi","edi","ebp" : no_entry );
+			: : "r" (prev_s), "r" (next_s), "ecx"(entry_s), "i"(nullptr), "r" (val_s)
+			: "esi","edi","ebp" : no_entry );
 no_entry:
 	asm("sti");
 }

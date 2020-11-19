@@ -24,7 +24,7 @@ char leters[]= "1234";
 
 static BezBios::Sched::ForYield<char *> yield;
 
-void second()
+void second(void *)
 {
 	int i = 0;
 	while(1)
@@ -36,7 +36,8 @@ void second()
 int bezbios_main()
 {
 	int stid=bezbios_sched_create_task(second,
-			&second_stack[sizeof(second_stack)/sizeof(*second_stack)-1]);
+			&second_stack[sizeof(second_stack)/sizeof(*second_stack)-1],
+			nullptr);
 
 	yield.connect(stid);
 

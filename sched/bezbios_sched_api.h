@@ -16,7 +16,7 @@ extern "C" {
 
 void bezbios_sched_switch_context(int nexttask);
 int bezbios_sched_get_tid();
-int bezbios_sched_create_task(void (*entry)(), void *stackbottom);
+int bezbios_sched_create_task(void (*entry)(void *), void *stackbottom, void * val);
 void bezbios_sched_destroy_task(int tid);
 
 #ifdef __cplusplus

@@ -1,9 +1,9 @@
 	.file	"sched_asm.cc"
 	.text
 	.p2align 4,,15
-	.globl	_ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvvE
-	.type	_ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvvE, @function
-_ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvvE:
+	.globl	_ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvS2_ES2_
+	.type	_ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvS2_ES2_, @function
+_ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvS2_ES2_:
 .LFB0:
 	.cfi_startproc
 	pushl	%ebp
@@ -21,13 +21,15 @@ _ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvvE:
 	movl	20(%esp), %eax
 	movl	24(%esp), %edx
 	movl	28(%esp), %ecx
+	movl	32(%esp), %ebx
 #APP
-# 22 "sched_asm.cc" 1
+# 23 "sched_asm.cc" 1
 	movl %esp, (%eax)
 	switchcontext_thread_pc:
 	movl %edx, %esp
 	jecxz .L2
 	push $0
+	push %ebx
 	sti
 	jmp %ecx
 	
@@ -36,7 +38,7 @@ _ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvvE:
 .L2:
 .L3:
 #APP
-# 24 "sched_asm.cc" 1
+# 25 "sched_asm.cc" 1
 	sti
 # 0 "" 2
 #NO_APP
@@ -55,6 +57,6 @@ _ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvvE:
 	ret
 	.cfi_endproc
 .LFE0:
-	.size	_ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvvE, .-_ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvvE
+	.size	_ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvS2_ES2_, .-_ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvS2_ES2_
 	.ident	"GCC: (Gentoo Hardened 8.2.0-r6 p1.7) 8.2.0"
 	.section	.note.GNU-stack,"",@progbits
