@@ -43,6 +43,7 @@ function(add_executable target_name)
 		-Wl,-Map=$<TARGET_FILE:${target_name}>.map)
 	set_target_properties(${target_name} PROPERTIES 
 		LINK_DEPENDS ${THISDIR}/multiboot.ld)
+	configure_file(${THISDIR}/syslinux.cfg.in syslinux.cfg @ONLY)
 	add_custom_command(
 		TARGET
 			${target_name}
@@ -58,7 +59,7 @@ function(add_executable target_name)
     	COMMAND mkfs.msdos $<TARGET_FILE:${target_name}>.img
     	COMMAND syslinux $<TARGET_FILE:${target_name}>.img
     	COMMAND mcopy -i $<TARGET_FILE:${target_name}>.img
-    		${THISDIR}/syslinux.cfg ::
+    		${CMAKE_CURRENT_BINARY_DIR}/syslinux.cfg ::
     	COMMAND mcopy -i $<TARGET_FILE:${target_name}>.img
     		$<TARGET_FILE:${target_name}>.stripped ::
     	COMMAND mcopy -i $<TARGET_FILE:${target_name}>.img

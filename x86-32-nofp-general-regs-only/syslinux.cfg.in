@@ -3,4 +3,4 @@
  
  LABEL mylabel
  KERNEL mboot.c32
- APPEND bezbios.stripped
+ APPEND @target_name@.stripped
