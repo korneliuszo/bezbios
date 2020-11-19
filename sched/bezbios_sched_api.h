@@ -11,17 +11,62 @@
 #define CONFIG_MAX_THREADS 15
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void bezbios_sched_switch_context(int nexttask);
 int bezbios_sched_get_tid();
-int bezbios_sched_create_task(void(*entry)(),void * stackbottom);
+int bezbios_sched_create_task(void (*entry)(), void *stackbottom);
 void bezbios_sched_destroy_task(int tid);
 
 #ifdef __cplusplus
 }
+
+namespace BezBios {
+namespace Sched {
+template<typename T>
+class ForYield {
+private:
+	volatile T value;
+	volatile int task;
+	volatile int stask;
+
+public:
+	ForYield() :
+			value(nullptr), task(-1), stask(-1) {
+	}
+	;
+	void connect(int remote) {
+		task = remote;
+		stask = bezbios_sched_get_tid();
+	}
+	T future_data() {
+		while (stask == bezbios_sched_get_tid()) {
+			bezbios_sched_switch_context(task);
+		}
+		asm("cli");
+		int tmp = task;
+		task = stask;
+		stask = tmp;
+		asm("sti");
+		return value;
+
+	}
+	void yield_data(T val) {
+		while (stask == bezbios_sched_get_tid()) {
+			bezbios_sched_switch_context(task);
+		}
+		value = val;
+		asm("cli");
+		int tmp = task;
+		task = stask;
+		stask = tmp;
+		asm("sti");
+	}
+};
+}
+}
+
 #endif
 
 #endif /* SCHED_BEZBIOS_SCHED_API_H_ */

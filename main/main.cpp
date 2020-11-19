@@ -20,22 +20,28 @@ int bezbios_main();
 };*/
 
 int second_stack[4096];
+char leters[]= "1234";
+
+static BezBios::Sched::ForYield<char *> yield;
 
 void second()
 {
-	bezbios_low_write_serial('2');
-	bezbios_sched_switch_context(0);
-	bezbios_low_write_serial('4');
-	bezbios_sched_switch_context(0);
+	int i = 0;
+	while(1)
+	{
+		yield.yield_data(&leters[i++]);
+	}
 }
 
 int bezbios_main()
 {
 	int stid=bezbios_sched_create_task(second,
 			&second_stack[sizeof(second_stack)/sizeof(*second_stack)-1]);
-	bezbios_low_write_serial('1');
-	bezbios_sched_switch_context(stid);
-	bezbios_low_write_serial('3');
-	bezbios_sched_switch_context(stid);
+
+	yield.connect(stid);
+
+	for (char * letter = yield.future_data();*letter;letter = yield.future_data())
+		bezbios_low_write_serial(*letter);
+	bezbios_sched_destroy_task(stid);
 	return 0;
 }
