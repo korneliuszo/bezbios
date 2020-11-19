@@ -73,4 +73,9 @@ SECTIONS
 	PROVIDE (__stack_end = .) ;
 		
 	} > RAM
+
+	.debug_gdb_scripts 0 (INFO) :
+	{
+		*(.debug_gdb_scripts)
+	}
 }

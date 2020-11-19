@@ -16,6 +16,15 @@ struct Threads_sp {
 	void (*entry)();
 };
 
+#include "thread_py.h"
+
+static
+__attribute__((used))
+__attribute__((section(".debug_gdb_scripts")))
+const char thread_py[] =
+	"\x01" THREAD_PY_PATH "/thread.py";
+
+
 static etl::array<Threads_sp,CONFIG_MAX_THREADS> global_threads_sp = {{(void *)1,nullptr},};
 static int current_tid;
 

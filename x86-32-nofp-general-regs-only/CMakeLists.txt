@@ -24,8 +24,16 @@ else()
 target_sources(sched PRIVATE sched_asm.cc)	
 endif()
 
-target_link_libraries(sched sched_api etl_run)
+set(THISDIR ${CMAKE_SOURCE_DIR}/x86-32-nofp-general-regs-only)
 
+
+configure_file(thread_py.h.in thread_py.h @ONLY)
+target_include_directories(sched
+	PRIVATE 
+		${CMAKE_CURRENT_BINARY_DIR}
+)
+
+target_link_libraries(sched sched_api etl_run)
 
 function(add_executable target_name)
 	set(THISDIR ${CMAKE_SOURCE_DIR}/x86-32-nofp-general-regs-only)
