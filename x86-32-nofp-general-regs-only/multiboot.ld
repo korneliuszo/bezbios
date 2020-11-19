@@ -57,7 +57,7 @@ SECTIONS
 	} > RAM
  
 	/* Read-write data (uninitialized) and stack */
-	.bss BLOCK(64K) : ALIGN(4K)
+	.bss BLOCK(64K) (NOLOAD) : ALIGN(4K)
 	{
      PROVIDE (__bss_start = .) ;
 		*(COMMON)
