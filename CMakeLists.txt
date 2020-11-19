@@ -23,5 +23,6 @@ endif()
 
 
 add_subdirectory(main)
+add_subdirectory(task_low_test)
 
 target_link_options(bezbios PRIVATE -Werror -Wall -Wextra -pedantic -g)
