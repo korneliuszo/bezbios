@@ -19,6 +19,12 @@ int bezbios_sched_get_tid();
 int bezbios_sched_create_task(void (*entry)(void *), void *stackbottom, void * val);
 void bezbios_sched_destroy_task(int tid);
 
+
+void bezbios_sched_task_ready(int tid, int is_ready);
+void bezbios_sched_wfi(int interrupt);
+void bezbios_sched_interrupt_handled(int interrupt);
+int bezbios_sched_free_cpu();
+
 #ifdef __cplusplus
 }
 
