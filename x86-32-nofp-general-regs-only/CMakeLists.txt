@@ -24,6 +24,8 @@ else()
 target_sources(sched PRIVATE sched_asm.cc)	
 endif()
 
+add_library(gcc_internals STATIC stack_protector_iface.c)
+target_link_libraries(crt0 gcc_internals)
 set(THISDIR ${CMAKE_SOURCE_DIR}/x86-32-nofp-general-regs-only)
 
 
