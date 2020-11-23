@@ -15,8 +15,8 @@ switchcontext_int(void **prev_s, void *next_s, void (*entry_s)(void *),void * va
 			"switchcontext_thread_pc:\n\t"
 			"movl %1, %%esp\n\t"
 			"jecxz %l5\n\t"
-			"push %3\n\t" // we want GPF
-			"push %4\n\t"
+			"push %4\n\t" // arg
+			"push %3\n\t" // return to NULL
 			"sti\n\t"
 			"jmp %2\n\t"
 			: : "r" (prev_s), "r" (next_s), "ecx"(entry_s), "i"(nullptr), "r" (val_s)

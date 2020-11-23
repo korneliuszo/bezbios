@@ -28,8 +28,8 @@ _ZN7BezBios5Sched7m32ngro17switchcontext_intEPPvS2_PFvS2_ES2_:
 	switchcontext_thread_pc:
 	movl %edx, %esp
 	jecxz .L2
-	push $0
 	push %ebx
+	push $0
 	sti
 	jmp %ecx
 	
