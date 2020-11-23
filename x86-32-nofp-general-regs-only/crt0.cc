@@ -102,7 +102,8 @@ __attribute__((section(".init"))) _pstart(void) {
 			"movw %%ax, %%gs\n\t"
 			"movw %%ax, %%ss\n\t"
 			: : : "ax");
-	asm volatile("movl %0, %%esp" : : "i"(&__stack_end));
-	asm volatile("movl %0, %%ebp" : : "i"(&__stack_end));
+	asm volatile("movl %0, %%esp" : : "i"(&__stack_end-1));
+	asm volatile("movl %0, %%ebp" : : "i"(&__stack_end-1));
+	asm volatile("push $0");
 	asm volatile("jmp _cstart");
 }

@@ -37,12 +37,15 @@ _pstart:
 	
 # 0 "" 2
 # 105 "crt0.cc" 1
-	movl $__stack_end, %esp
+	movl $__stack_end-4, %esp
 # 0 "" 2
 # 106 "crt0.cc" 1
-	movl $__stack_end, %ebp
+	movl $__stack_end-4, %ebp
 # 0 "" 2
 # 107 "crt0.cc" 1
+	push $0
+# 0 "" 2
+# 108 "crt0.cc" 1
 	jmp _cstart
 # 0 "" 2
 #NO_APP
