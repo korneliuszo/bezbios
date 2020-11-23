@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.9.0)
 cmake_policy(SET CMP0077 NEW)
 
 project(bezbios)
+
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 add_compile_options(-Wall -Wextra -pedantic -Werror -g) 
 
