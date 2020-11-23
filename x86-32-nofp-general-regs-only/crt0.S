@@ -7,12 +7,19 @@
 _start:
 .LFB0:
 	.cfi_startproc
+#APP
+# 85 "crt0.cc" 1
+	mov $0xff, %al
+	outb %al, $0xa1
+	outb %al, $0x21
+# 0 "" 2
+#NO_APP
 	movl	$_ZL11gdt_pointer, %eax
 #APP
-# 83 "crt0.cc" 1
+# 86 "crt0.cc" 1
 	lgdt (%eax) 
 # 0 "" 2
-# 90 "crt0.cc" 1
+# 93 "crt0.cc" 1
 	jmp $0x08,$_pstart
 # 0 "" 2
 #NO_APP
@@ -27,7 +34,7 @@ _pstart:
 .LFB1:
 	.cfi_startproc
 #APP
-# 104 "crt0.cc" 1
+# 107 "crt0.cc" 1
 	movw $0x10, %ax
 	movw %ax, %ds
 	movw %ax, %es
@@ -36,16 +43,16 @@ _pstart:
 	movw %ax, %ss
 	
 # 0 "" 2
-# 105 "crt0.cc" 1
+# 108 "crt0.cc" 1
 	movl $__stack_end-4, %esp
 # 0 "" 2
-# 106 "crt0.cc" 1
+# 109 "crt0.cc" 1
 	movl $__stack_end-4, %ebp
 # 0 "" 2
-# 107 "crt0.cc" 1
+# 110 "crt0.cc" 1
 	push $0
 # 0 "" 2
-# 108 "crt0.cc" 1
+# 111 "crt0.cc" 1
 	jmp _cstart
 # 0 "" 2
 #NO_APP

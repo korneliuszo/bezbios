@@ -80,6 +80,9 @@ void
 __attribute__((used))
 __attribute__((naked))
 __attribute__((section(".init"))) _start(void) {
+	asm volatile("mov $0xff, %%al\n\t"
+		"outb %%al, $0xa1\n\t"
+		"outb %%al, $0x21":::"al"); // Disable interrupts as we change gdt
 	asm volatile("lgdt (%0) " :  : "r"(&gdt_pointer));
 #ifdef CONFIG_FROM_REAL_MODE
 	asm (
