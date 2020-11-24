@@ -19,7 +19,6 @@ int bezbios_main();
 	Test() { test=4;};
 };*/
 
-int first_stack[4096];
 int second_stack[4096];
 
 char leters[]= "1234";
@@ -51,17 +50,8 @@ void first(void *)
 	bezbios_sched_free_cpu();
 }
 
-__attribute((constructor))
-static
-void first_init()
-{
-	int stid=bezbios_sched_create_task(first,
-			&first_stack[4095],
-			nullptr);
 
-	bezbios_sched_task_ready(stid,1);
-}
-
+BEZBIOS_CREATE_PROCESS(first,4096)
 int bezbios_main()
 {
 

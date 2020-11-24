@@ -25,6 +25,18 @@ void bezbios_sched_wfi(int interrupt);
 void bezbios_sched_interrupt_handled(int interrupt);
 int bezbios_sched_free_cpu();
 
+#define BEZBIOS_CREATE_PROCESS(fn,size) \
+		static int fn ## _stack[size]; \
+		__attribute((constructor)) \
+		static \
+		void fn ## _init() \
+		{ \
+			int stid=bezbios_sched_create_task(fn, \
+					&fn ## _stack[size-1], \
+					nullptr); \
+			bezbios_sched_task_ready(stid,1); \
+		}
+
 #ifdef __cplusplus
 }
 
