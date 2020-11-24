@@ -51,14 +51,19 @@ void first(void *)
 	bezbios_sched_free_cpu();
 }
 
-int bezbios_main()
+__attribute((constructor))
+static
+void first_init()
 {
-
 	int stid=bezbios_sched_create_task(first,
 			&first_stack[4095],
 			nullptr);
 
 	bezbios_sched_task_ready(stid,1);
+}
+
+int bezbios_main()
+{
 
 	while(1)
 	{
