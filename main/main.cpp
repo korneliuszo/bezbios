@@ -34,7 +34,7 @@ void second(Yieldcptr *yield)
 	}
 }
 
-void first(void *)
+void first()
 {
 	Yieldcptr yield;
 	int stid=bezbios_sched_create_task((void(*)(void*))second,
@@ -46,8 +46,6 @@ void first(void *)
 		bezbios_low_write_serial(*letter);
 
 	bezbios_sched_destroy_task(stid);
-	bezbios_sched_task_ready(bezbios_sched_get_tid(),0);
-	bezbios_sched_free_cpu();
 }
 
 

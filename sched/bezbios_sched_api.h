@@ -27,11 +27,17 @@ int bezbios_sched_free_cpu();
 
 #define BEZBIOS_CREATE_PROCESS(fn,size) \
 		static int fn ## _stack[size]; \
+		static void fn ## _entry(void *) \
+		{ \
+			fn(); \
+			bezbios_sched_task_ready(bezbios_sched_get_tid(),0); \
+			bezbios_sched_free_cpu(); \
+		} \
 		__attribute((constructor)) \
 		static \
 		void fn ## _init() \
 		{ \
-			int stid=bezbios_sched_create_task(fn, \
+			int stid=bezbios_sched_create_task(fn ## _entry, \
 					&fn ## _stack[size-1], \
 					nullptr); \
 			bezbios_sched_task_ready(stid,1); \
