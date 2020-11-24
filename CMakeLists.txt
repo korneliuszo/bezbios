@@ -7,8 +7,6 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 add_compile_options(-Wall -Wextra -pedantic -Werror -g) 
 
-add_subdirectory(etl)
-
 option(CONFIG_M32NOFPGRO "Target m32" ON)
 if(CONFIG_M32NOFPGRO)
 	include(x86-32-nofp-general-regs-only/Prologue.txt)

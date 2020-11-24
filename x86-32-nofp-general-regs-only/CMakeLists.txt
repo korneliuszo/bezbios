@@ -1,11 +1,6 @@
 
 enable_language(ASM)
 
-add_library(etl_run INTERFACE)
-target_include_directories(etl_run INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/etl_profile)
-target_link_libraries(etl_run INTERFACE etl)
-
-
 add_library(crt0 STATIC crt1.cpp)
 
 option(CONFIG_CACHED_ASM "Use asm" ON)
@@ -38,7 +33,7 @@ target_include_directories(sched
 		${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_link_libraries(sched sched_api etl_run)
+target_link_libraries(sched sched_api)
 
 function(add_executable target_name)
 	set(THISDIR ${CMAKE_SOURCE_DIR}/x86-32-nofp-general-regs-only)

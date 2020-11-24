@@ -9,8 +9,6 @@
 #include <sched/bezbios_sched_api.h>
 #include "sched_low.h"
 
-#include <etl/array.h>
-
 struct Threads_sp {
 	void * stack;
 	void (*entry)(void *);
@@ -26,7 +24,7 @@ const char thread_py[] =
 	"\x01" THREAD_PY_PATH "/thread.py";
 
 
-static etl::array<Threads_sp,CONFIG_MAX_THREADS> global_threads_sp = {{(void *)1,nullptr,nullptr},};
+static Threads_sp global_threads_sp[CONFIG_MAX_THREADS] = {{(void *)1,nullptr,nullptr},};
 static int current_tid;
 
 void bezbios_sched_switch_context(int nexttask)
@@ -50,14 +48,14 @@ int bezbios_sched_get_tid()
 int bezbios_sched_create_task(void(*entry)(void*),void * stackbottom, void* val)
 {
 	auto& gts = global_threads_sp;
-	for(auto i = gts.begin(); i != gts.end();i++)
+	for(long i = 0; i < CONFIG_MAX_THREADS ;i++)
 	{
-		if (i->stack == nullptr)
+		if (gts[i].stack == nullptr)
 		{
-			i->entry = entry;
-			i->stack = stackbottom;
-			i->val = val;
-			return i - global_threads_sp.begin();
+			gts[i].entry = entry;
+			gts[i].stack = stackbottom;
+			gts[i].val = val;
+			return i;
 		}
 	}
 	return -1;
