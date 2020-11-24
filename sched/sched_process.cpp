@@ -30,7 +30,7 @@ void bezbios_sched_interrupt_handled(int interrupt)
 {
 	int tid = bezbios_sched_get_tid();
 	int int_tid = 0;
-	for(long it=0;it < CONFIG_MAX_THREADS ;it++)
+	for(int it=0;it < CONFIG_MAX_THREADS ;it++)
 	{
 		if(!int_tid &&threads_wfi[it] == interrupt +2)
 			int_tid = it;
@@ -50,12 +50,12 @@ int bezbios_sched_free_cpu()
 {
 	int tid = bezbios_sched_get_tid();
 	int wait_tid = 0; // falltrough to bezbios_main task
-	for(long it=tid;it < CONFIG_MAX_THREADS;it++)
+	for(int it=tid;it < CONFIG_MAX_THREADS;it++)
 	{
 		if(!wait_tid && threads_wfi[it] == 1)
 			wait_tid = it;
 	}
-	for(auto it=0;it < tid;it++)
+	for(int it=0;it < tid;it++)
 	{
 		if(!wait_tid && threads_wfi[it] == 1)
 			wait_tid = it;
