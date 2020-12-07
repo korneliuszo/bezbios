@@ -88,6 +88,38 @@ public:
 		asm("sti");
 	}
 };
+
+template<long SIZE>
+class Bitfield{
+	typedef unsigned int CTRT;
+	CTRT field[((sizeof(CTRT)*8)-1+(SIZE))/(sizeof(CTRT)*8)];
+public:
+	int get(long idx)
+	{
+		int widx = idx / (8*sizeof(CTRT));
+		int bit = idx  % (8*sizeof(CTRT));
+		return !!(field[widx] & (1<<bit));
+	}
+	void set(long idx, int val)
+	{
+		int widx = idx / (8*sizeof(CTRT));
+		int bit = idx  % (8*sizeof(CTRT));
+		if (val)
+			field[widx]|= (1<<bit);
+		else
+			field[widx]&= ~(1<<bit);
+	}
+};
+
+class Mutex{
+private:
+	Bitfield<CONFIG_MAX_THREADS> waiting;
+	int locked; //thread id, thread 0 cannot into mutexes
+public:
+	void aquire();
+	void release();
+};
+
 }
 }
 
