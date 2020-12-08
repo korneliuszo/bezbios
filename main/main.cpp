@@ -10,7 +10,8 @@
 
 extern "C"
 {
-int bezbios_main();
+__attribute__((used))
+int bezbios_main(void);
 }
 
 /*class Test

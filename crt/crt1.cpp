@@ -43,7 +43,7 @@ typedef struct {
 
 extern multiboot_t Multiboot_header;
 
-int bezbios_main();
+void bezbios_main(void);
 
 }
 

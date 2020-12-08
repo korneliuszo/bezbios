@@ -19,6 +19,9 @@ void
 __attribute__((used))
 __attribute__((naked))
 __attribute__((section(".init"))) _pstart(void);
+
+extern void _cstart(void);
+
 }
 
 typedef struct

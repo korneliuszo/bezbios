@@ -10,6 +10,7 @@
 
 extern "C"
 {
+__attribute__((used))
 int bezbios_main();
 }
 

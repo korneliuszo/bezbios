@@ -1,42 +1,14 @@
+add_library(crt0 STATIC)
 
-enable_language(ASM)
-
-add_library(crt0 STATIC crt1.cpp)
-
-option(CONFIG_CACHED_ASM "Use asm" ON)
 if(CONFIG_CACHED_ASM)
+enable_language(ASM)
 target_sources(crt0 PRIVATE crt0.S)
 else()
 target_sources(crt0 PRIVATE crt0.cc)
 endif()
 
-
-add_library(sched STATIC sched_low.cpp)
-
-if(CONFIG_CACHED_ASM)
-target_sources(sched PRIVATE sched_asm.S)	
-else()
-target_sources(sched PRIVATE sched_asm.cc)	
-endif()
-
-add_library(gcc_internals STATIC stack_protector_iface.c)
-set_property(TARGET gcc_internals
-             PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
-target_link_libraries(crt0 gcc_internals)
-
-set(THISDIR ${CMAKE_SOURCE_DIR}/x86-32-nofp-general-regs-only)
-
-
-configure_file(thread_py.h.in thread_py.h @ONLY)
-target_include_directories(sched
-	PRIVATE 
-		${CMAKE_CURRENT_BINARY_DIR}
-)
-
-target_link_libraries(sched sched_api)
-
 function(add_executable target_name)
-	set(THISDIR ${CMAKE_SOURCE_DIR}/x86-32-nofp-general-regs-only)
+	set(THISDIR ${CMAKE_SOURCE_DIR}/platform_pc/x86-32/multiboot)
 	_add_executable(${target_name} ${ARGN})
 	target_link_options(${target_name} PUBLIC
 		-m32 -nostdlib -T ${THISDIR}/multiboot.ld -static
