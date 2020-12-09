@@ -8,12 +8,6 @@
 #include <sched/bezbios_sched_api.h>
 #include <uart/bezbios_uart_api.h>
 
-extern "C"
-{
-__attribute__((used))
-int bezbios_main(void);
-}
-
 /*class Test
 {
 	int test;
@@ -77,15 +71,4 @@ void third()
 BEZBIOS_CREATE_PROCESS(first,4096)
 BEZBIOS_CREATE_PROCESS(third,4096)
 
-int bezbios_main()
-{
 
-	while(1)
-	{
-		while(bezbios_sched_free_cpu());
-		asm("hlt");
-		asm("nop");
-	}
-
-	return 0;
-}

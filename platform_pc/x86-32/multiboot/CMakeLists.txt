@@ -10,6 +10,7 @@ endif()
 function(add_executable target_name)
 	set(THISDIR ${CMAKE_SOURCE_DIR}/platform_pc/x86-32/multiboot)
 	_add_executable(${target_name} ${ARGN})
+	target_sources(${target_name} PRIVATE ${CMAKE_SOURCE_DIR}/sched/sched_main.cpp)
 	target_link_options(${target_name} PUBLIC
 		-m32 -nostdlib -T ${THISDIR}/multiboot.ld -static
 		-Wl,-Map=$<TARGET_FILE:${target_name}>.map)
