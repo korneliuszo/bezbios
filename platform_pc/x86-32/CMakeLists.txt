@@ -31,6 +31,8 @@ target_link_libraries(sched sched_api)
 add_library(interrupts
 	STATIC
 		interrupts.cpp
+		timerPIT.cpp
+)
 set_property(TARGET interrupts
              PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
 target_include_directories(interrupts
