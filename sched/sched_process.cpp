@@ -50,6 +50,7 @@ int bezbios_sched_free_cpu()
 {
 	int tid = bezbios_sched_get_tid();
 	int wait_tid = 0; // falltrough to bezbios_main task
+	// rr no priority
 	for(int it=tid+1;it < CONFIG_MAX_THREADS;it++)
 	{
 		if(!wait_tid && threads_wfi[it] == 1)
