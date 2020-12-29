@@ -28,3 +28,13 @@ target_include_directories(sched
 
 target_link_libraries(sched sched_api)
 
+add_library(interrupts
+	STATIC
+		interrupts.cpp
+set_property(TARGET interrupts
+             PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
+target_include_directories(interrupts
+	INTERFACE
+		${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries(interrupts sched_api)

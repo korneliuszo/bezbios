@@ -12,6 +12,8 @@
  *      Author: Korneliusz Osmenda
  */
 
+#include <interrupts.h>
+
 extern "C" {
 
 //#include "memgccuse.h"
@@ -79,6 +81,8 @@ _cstart(void) {
 
 
 	long i, count;
+
+	bezbios_init_interrupts();
 
 	count = __init_array_end - __init_array_start;
 	for (i = 0; i < count; i++)
