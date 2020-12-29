@@ -68,11 +68,11 @@ public:
 		while (stask == bezbios_sched_get_tid()) {
 			bezbios_sched_switch_context(task);
 		}
-		asm("cli");
+		asm volatile("cli");
 		int tmp = task;
 		task = stask;
 		stask = tmp;
-		asm("sti");
+		asm volatile("sti");
 		return value;
 
 	}
@@ -81,11 +81,11 @@ public:
 			bezbios_sched_switch_context(task);
 		}
 		value = val;
-		asm("cli");
+		asm volatile("cli");
 		int tmp = task;
 		task = stask;
 		stask = tmp;
-		asm("sti");
+		asm volatile("sti");
 	}
 };
 

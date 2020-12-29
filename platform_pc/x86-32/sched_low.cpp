@@ -29,7 +29,7 @@ static int current_tid;
 
 void bezbios_sched_switch_context(int nexttask)
 {
-	asm("cli");
+	asm volatile("cli");
 
 	int tid = current_tid;
 	current_tid = nexttask;
