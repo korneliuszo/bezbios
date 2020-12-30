@@ -18,17 +18,65 @@ static volatile unsigned long long systick_msf;
 static constexpr unsigned long long systick_add =
 		PIT_RELOAD_INT / PIT_INP_FREQ * 1000 *(1ULL<<32) + 0.5;
 
+
+struct DelayList {
+	volatile long timeout;
+	DelayList * volatile next;
+};
+
+static DelayList delay_tbl[CONFIG_MAX_THREADS];
+static DelayList * volatile delay_head = nullptr;
+
+static inline unsigned long cli()
+{
+	unsigned long ret;
+    asm volatile("# __raw_save_flags\n\t"
+             "pushf ; pop %0"
+             : "=rm" (ret)
+             : /* no input */
+             : "memory");
+	asm volatile("cli");
+	return ret;
+}
+static inline void sti(unsigned long prev)
+{
+    asm volatile("# __raw_restore_flags\n\t"
+             "push %0 ; popf"
+             : "=rm" (prev)
+             : /* no input */
+             : "memory");
+}
+
+
+#define ENTER_ATOMIC() \
+	unsigned long _is_interrupt = cli()
+#define EXIT_ATOMIC() \
+	sti(_is_interrupt)
+
 long bezbios_get_ms()
 {
-	asm volatile("cli");
+	ENTER_ATOMIC();
 	long ret = systick_msf >> 32;
-	asm volatile("sti");
+	EXIT_ATOMIC();
 	return ret;
 }
 
 static void PIT_ISR(unsigned char irq)
 {
 	systick_msf +=systick_add;
+
+	long now = systick_msf >> 32;
+	DelayList* newhead = delay_head;
+	for (;
+			newhead != nullptr;
+			newhead = newhead->next)
+	{
+		if(newhead->timeout > now)
+			break;
+		bezbios_sched_task_ready(newhead - delay_tbl,1);
+	}
+	delay_head = newhead;
+
 	bezbios_int_ack(irq);
 	int tid = bezbios_sched_get_tid();
 	if(tid) // if in main/idle task we don't do preemption
@@ -44,4 +92,40 @@ void init_PIT() {
 	outb(0x40,PIT_RELOAD_INT >> 8);
 	bezbios_hwirq_insert(0,PIT_ISR);
 	bezbios_enable_irq(0);
+}
+
+void bezbios_delay_ms(int ms)
+{
+	int tid = bezbios_sched_get_tid();
+	DelayList* ptr=&delay_tbl[tid];
+	ENTER_ATOMIC();
+	long timeout = bezbios_get_ms() + ms;
+	ptr->timeout = timeout;
+
+	DelayList* oldhead = nullptr;
+	DelayList* newhead = delay_head;
+	for (;
+		newhead != nullptr;
+		oldhead = newhead,
+		newhead = newhead->next
+		)
+	{
+		if(newhead->timeout > timeout)
+		{
+			break;
+		}
+	}
+	if (delay_head == newhead)
+	{
+		ptr->next=newhead;
+		delay_head = ptr;
+	}
+	else
+	{
+		ptr->next = newhead;
+		oldhead->next = ptr;
+	}
+	EXIT_ATOMIC();
+	bezbios_sched_task_ready(tid,0);
+	bezbios_sched_free_cpu();
 }

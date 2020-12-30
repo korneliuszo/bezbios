@@ -21,6 +21,8 @@ void bezbios_enable_irq(unsigned char IRQline);
 long bezbios_get_ms();
 void init_PIT();
 
+void bezbios_delay_ms(int delay);
+
 #define BEZBIOS_INIT_PIT() \
 		__attribute((constructor)) \
 		static \
@@ -34,6 +36,5 @@ void init_PIT();
 #endif
 
 void bezbios_irq_idt(unsigned char irqn,void (*irqfn)(struct interrupt_frame *), unsigned char dpl=0, bool trap=false);
-
 
 #endif /* PLATFORM_PC_X86_32_INTERRUPTS_H_ */
