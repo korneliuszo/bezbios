@@ -15,6 +15,7 @@ extern "C" {
 #endif
 
 void bezbios_sched_switch_context(int nexttask);
+void bezbios_sched_switch_context_exit(int nexttask);
 int bezbios_sched_get_tid();
 int bezbios_sched_create_task(void (*entry)(void *), void *stackbottom, void * val);
 void bezbios_sched_destroy_task(int tid);
@@ -24,6 +25,7 @@ void bezbios_sched_task_ready(int tid, int is_ready);
 void bezbios_sched_wfi(int interrupt);
 void bezbios_sched_interrupt_handled(int interrupt);
 int bezbios_sched_free_cpu();
+int bezbios_sched_free_cpu_exit();
 
 #define BEZBIOS_CREATE_PROCESS(fn,size) \
 		static int fn ## _stack[size]; \
@@ -31,7 +33,7 @@ int bezbios_sched_free_cpu();
 		{ \
 			fn(); \
 			bezbios_sched_task_ready(bezbios_sched_get_tid(),0); \
-			bezbios_sched_free_cpu(); \
+			bezbios_sched_free_cpu_exit(); \
 		} \
 		__attribute((constructor)) \
 		static \

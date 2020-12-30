@@ -12,7 +12,8 @@ namespace BezBios {
 namespace Sched {
 namespace m32ngro {
 
-void switchcontext_int(void **prev_s, void *next_s, void (*entry_s)(void *),void * val_s);
+void switchcontext_int(void * volatile *prev_s, void *next_s, void (*entry_s)(void *),void * val_s);
+void switchcontext_exit(void * volatile *prev_s, void *next_s, void (*entry_s)(void *),void * val_s);
 }
 }
 }

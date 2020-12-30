@@ -24,7 +24,8 @@ const char thread_py[] =
 	"\x01" THREAD_PY_PATH "/thread.py";
 
 
-static Threads_sp global_threads_sp[CONFIG_MAX_THREADS] = {{(void *)1,nullptr,nullptr},};
+__attribute__((externally_visible))
+volatile Threads_sp global_threads_sp[CONFIG_MAX_THREADS] = {{(void *)1,nullptr,nullptr},};
 static int current_tid;
 
 void bezbios_sched_switch_context(int nexttask)
@@ -40,6 +41,21 @@ void bezbios_sched_switch_context(int nexttask)
 	BezBios::Sched::m32ngro::
 	switchcontext_int(&global_threads_sp[tid].stack,global_threads_sp[nexttask].stack, entry,global_threads_sp[nexttask].val);
 }
+
+void bezbios_sched_switch_context_exit(int nexttask)
+{
+	asm volatile("cli");
+
+	int tid = current_tid;
+	current_tid = nexttask;
+
+	auto entry = global_threads_sp[current_tid].entry;
+	global_threads_sp[current_tid].entry = nullptr;
+
+	BezBios::Sched::m32ngro::
+	switchcontext_exit(&global_threads_sp[tid].stack,global_threads_sp[nexttask].stack, entry,global_threads_sp[nexttask].val);
+}
+
 int bezbios_sched_get_tid()
 {
 	return current_tid;

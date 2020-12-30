@@ -69,3 +69,27 @@ int bezbios_sched_free_cpu()
 	}
 	return 0;
 }
+
+int bezbios_sched_free_cpu_exit()
+{
+	int tid = bezbios_sched_get_tid();
+	int wait_tid = 0; // falltrough to bezbios_main task
+	// rr no priority
+	for(int it=tid+1;it < CONFIG_MAX_THREADS;it++)
+	{
+		if(!wait_tid && threads_wfi[it] == 1)
+			wait_tid = it;
+	}
+	for(int it=0;it < tid+1;it++)
+	{
+		if(!wait_tid && threads_wfi[it] == 1)
+			wait_tid = it;
+	}
+	threads_wfi[wait_tid] = 0;
+	if (wait_tid != tid)
+	{
+		bezbios_sched_switch_context_exit(wait_tid);
+		return 1;
+	}
+	return 0;
+}

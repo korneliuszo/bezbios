@@ -14,8 +14,8 @@ class PrintThreads (gdb.Command):
 
     longType = gdb.lookup_type("long")
 
-    stacks = [all_tasks["_buffer"][i]["stack"] for i in range(THREAD_COUNT)]
-    ir = [all_tasks["_buffer"][i]["entry"] for i in range(THREAD_COUNT)]
+    stacks = [all_tasks[i]["stack"] for i in range(THREAD_COUNT)]
+    ir = [all_tasks[i]["entry"] for i in range(THREAD_COUNT)]
 
     runningIndex = int(gdb.parse_and_eval("current_tid").format_string())
 
