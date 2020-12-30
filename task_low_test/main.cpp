@@ -6,7 +6,7 @@
  */
 
 #include <sched/bezbios_sched_api.h>
-#include <uart/bezbios_uart_api.h>
+#include <uart/bezbios_uart_api_low.h>
 
 extern "C"
 {
