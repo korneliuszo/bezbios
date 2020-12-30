@@ -27,7 +27,10 @@ void second(Yieldcptr *yield)
 	while(1)
 	{
 		if (leters[i] == 0)
+		{
 			i=0;
+			bezbios_delay_ms(1500);
+		}
 		yield->yield_data(&leters[i]);
 		i++;
 	}
@@ -56,7 +59,10 @@ void third()
 	while(1)
 	{
 		if (leters[i] == 0)
+		{
 			i=0;
+			bezbios_delay_ms(1000);
+		}
 		bezbios_low_write_serial(leters[i]);
 		i++;
 	}
