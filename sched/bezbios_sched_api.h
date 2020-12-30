@@ -54,40 +54,25 @@ template<typename T>
 class ForYield {
 private:
 	volatile T value;
-	volatile int task;
-	volatile int stask;
+	volatile int for_task;
+	volatile int yield_task;
 
 public:
 	ForYield() :
-			value(nullptr), task(-1), stask(-1) {
+			value(nullptr), for_task(-1), yield_task(-1) {
 	}
 	;
 	void connect(int remote) {
-		task = remote;
-		stask = bezbios_sched_get_tid();
+		yield_task = remote;
+		for_task = bezbios_sched_get_tid();
 	}
 	T future_data() {
-		while (stask == bezbios_sched_get_tid()) {
-			bezbios_sched_switch_context(task);
-		}
-		asm volatile("cli");
-		int tmp = task;
-		task = stask;
-		stask = tmp;
-		asm volatile("sti");
+		bezbios_sched_switch_context(yield_task);
 		return value;
-
 	}
 	void yield_data(T val) {
-		while (stask == bezbios_sched_get_tid()) {
-			bezbios_sched_switch_context(task);
-		}
 		value = val;
-		asm volatile("cli");
-		int tmp = task;
-		task = stask;
-		stask = tmp;
-		asm volatile("sti");
+		bezbios_sched_switch_context(for_task);
 	}
 };
 
