@@ -17,7 +17,7 @@
 
 int second_stack[4096];
 
-char leters[]= "Bez";
+char leters[]= "Bez\n";
 
 typedef BezBios::Sched::ForYield<char *> Yieldcptr;
 
@@ -51,7 +51,7 @@ void first()
 
 void third()
  {
-	char leters[]="Bios";
+	char leters[]="Bios\n";
 	int i = 0;
 	while(1)
 	{
