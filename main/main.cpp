@@ -69,6 +69,19 @@ void third()
 
  }
 
+void loop()
+ {
+
+	while(1)
+	{
+		unsigned char c;
+		c=bezbios_serial_recv();
+		bezbios_serial_send(c);
+	}
+
+ }
+
+BEZBIOS_CREATE_PROCESS(loop,4096)
 BEZBIOS_CREATE_PROCESS(first,4096)
 BEZBIOS_CREATE_PROCESS(third,4096)
 BEZBIOS_INIT_PIT()
