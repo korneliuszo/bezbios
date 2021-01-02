@@ -6,7 +6,7 @@
  */
 
 #include <sched/bezbios_sched_api.h>
-#include <uart/bezbios_uart_api_low.h>
+#include <uart/bezbios_uart_api.h>
 #include <interrupts.h>
 
 /*class Test
@@ -47,7 +47,7 @@ void first()
 
 	for (char * letter = yield.future_data();*letter;letter = yield.future_data())
 	{
-		bezbios_low_write_serial(*letter);
+		bezbios_serial_send(*letter);
 	}
 	bezbios_sched_destroy_task(stid);
 }
@@ -63,7 +63,7 @@ void third()
 			i=0;
 			bezbios_delay_ms(1000);
 		}
-		bezbios_low_write_serial(leters[i]);
+		bezbios_serial_send(leters[i]);
 		i++;
 	}
 
@@ -72,4 +72,4 @@ void third()
 BEZBIOS_CREATE_PROCESS(first,4096)
 BEZBIOS_CREATE_PROCESS(third,4096)
 BEZBIOS_INIT_PIT()
-
+BEZBIOS_INIT_SERIAL()
