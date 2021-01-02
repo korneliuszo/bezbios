@@ -7,7 +7,7 @@
 
 #include "bezbios_sched_api.h"
 
-static int threads_wfi[CONFIG_MAX_THREADS];
+static volatile int threads_wfi[CONFIG_MAX_THREADS];
 // 0 - don't schedule
 // 1 - wait for free cpu
 // +2 - wait for interrupt
@@ -29,20 +29,19 @@ void bezbios_sched_wfi(int interrupt)
 void bezbios_sched_interrupt_handled(int interrupt)
 {
 	int tid = bezbios_sched_get_tid();
-	int int_tid = 0;
+	bool int_schedule = false;
 	for(int it=0;it < CONFIG_MAX_THREADS ;it++)
 	{
-		if(!int_tid &&threads_wfi[it] == interrupt +2)
-			int_tid = it;
-	}
-	if (int_tid)
-	{
-		threads_wfi[int_tid] = 0;
-		if (int_tid != tid)
+		if(threads_wfi[it] == interrupt +2)
 		{
-			threads_wfi[tid] = 1;
-			bezbios_sched_switch_context(int_tid);
+			threads_wfi[it] = 1;
+			int_schedule = true;
 		}
+	}
+	if (int_schedule)
+	{
+		threads_wfi[tid] = 1;
+		bezbios_sched_free_cpu();
 	}
 }
 
