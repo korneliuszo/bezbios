@@ -57,6 +57,8 @@ static void ll_hw_int(struct interrupt_frame *)
 {
 	if (hwirq[IRQ])
 		hwirq[IRQ](IRQ);
+	else
+		bezbios_int_ack(IRQ); //eat spurious interrupts
 }
 
 void bezbios_int_ack(unsigned char IRQ)
