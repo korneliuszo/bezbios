@@ -66,6 +66,7 @@ static void serial_int(unsigned char irq)
 		  }
 		  break;
 	}
+	bezbios_sched_interrupt_handled(INT);
 	bezbios_int_ack(irq);
 }
 
