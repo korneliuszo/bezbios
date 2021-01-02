@@ -33,20 +33,22 @@ public:
 	{
 		return inb(PORT);
 	}
-	ByteIO& operator =(const unsigned char& byte)
+	unsigned char operator =(const unsigned char& byte)
 	{
 		outb(PORT,byte);
-		return *this;
+		return byte;
 	}
-	ByteIO& operator |=(const unsigned char& byte)
+	unsigned char operator |=(const unsigned char& byte)
 	{
-		outb(PORT,byte | inb(PORT));
-		return *this;
+		unsigned char rval=byte | inb(PORT);
+		outb(PORT,rval);
+		return rval;
 	}
-	ByteIO& operator &=(const unsigned char& byte)
+	unsigned char operator &=(const unsigned char& byte)
 	{
-		outb(PORT,byte & inb(PORT));
-		return *this;
+		unsigned char rval=byte & inb(PORT);
+		outb(PORT,rval);
+		return rval;
 	}
 };
 
