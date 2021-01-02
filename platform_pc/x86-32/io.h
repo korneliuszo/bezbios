@@ -50,6 +50,31 @@ public:
 	}
 };
 
+static inline unsigned long cli()
+{
+	unsigned long ret;
+    asm volatile("# __raw_save_flags\n\t"
+             "pushf ; pop %0"
+             : "=rm" (ret)
+             : /* no input */
+             : "memory");
+	asm volatile("cli");
+	return ret;
+}
+static inline void sti(unsigned long prev)
+{
+    asm volatile("# __raw_restore_flags\n\t"
+             "push %0 ; popf"
+             : /* no output */
+             : "rm" (prev)
+             : "memory");
+}
+
+
+#define ENTER_ATOMIC() \
+	unsigned long _is_interrupt = cli()
+#define EXIT_ATOMIC() \
+	sti(_is_interrupt)
 
 
 #endif /* PLATFORM_PC_X86_32_IO_H_ */
