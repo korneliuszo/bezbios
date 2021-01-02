@@ -13,8 +13,17 @@ extern "C"
 {
 #endif
 
-char bezbios_low_read_serial();
-void bezbios_low_write_serial(char a);
+void bezbios_serial_init();
+void bezbios_serial_send(unsigned char byte);
+unsigned char bezbios_serial_recv();
+
+#define BEZBIOS_INIT_SERIAL() \
+		__attribute((constructor)) \
+		static \
+		void SERIAL_init() \
+		{ \
+			bezbios_serial_init(); \
+		}
 
 #ifdef __cplusplus
 }
