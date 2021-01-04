@@ -35,7 +35,9 @@ long bezbios_get_ms()
 	return ret;
 }
 
-static void PIT_ISR(unsigned char irq)
+template<>
+__attribute__((interrupt))
+void bezbios_imp_hw_req<0>::f(struct interrupt_frame *)
 {
 	systick_msf +=systick_add;
 
@@ -51,7 +53,7 @@ static void PIT_ISR(unsigned char irq)
 	}
 	delay_head = newhead;
 
-	bezbios_int_ack(irq);
+	bezbios_int_ack(0);
 	int tid = bezbios_sched_get_tid();
 	if(tid) // if in main/idle task we don't do preemption
 	{
@@ -64,7 +66,6 @@ void init_PIT() {
 	outb(0x43,0x34);
 	outb(0x40,PIT_RELOAD_INT &0xff);
 	outb(0x40,PIT_RELOAD_INT >> 8);
-	bezbios_hwirq_insert(0,PIT_ISR);
 	bezbios_enable_irq(0);
 }
 

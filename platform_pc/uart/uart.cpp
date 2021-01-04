@@ -33,12 +33,14 @@ constexpr long FIFO_SIZE = 32;
 DEFINE_STATIC_FIFO(serial_rx,FIFO_SIZE);
 DEFINE_STATIC_FIFO(serial_tx,FIFO_SIZE);
 
-static void serial_int(unsigned char irq)
+template<>
+__attribute__((interrupt))
+void bezbios_imp_hw_req<INT>::f(struct interrupt_frame *)
 {
 	unsigned char IIR_cached = IIR;
 	if((IIR_cached & 0x1))
 	{
-		bezbios_int_ack(irq);
+		bezbios_int_ack(INT);
 		return; // not our irq (spurious?/another port?)
 	}
 	switch(IIR_cached&0x0E)
@@ -67,12 +69,10 @@ static void serial_int(unsigned char irq)
 		  break;
 	}
 	bezbios_sched_interrupt_handled(INT);
-	bezbios_int_ack(irq);
+	bezbios_int_ack(INT);
 }
 
 void bezbios_serial_init() {
-	bezbios_hwirq_insert(INT,serial_int);
-	bezbios_enable_irq(INT);
 	IER = 0x00; // Disable all interrupts
 	LCR = 0x80;    // Enable DLAB (set baud rate divisor)
 	DLL = 0x03;    // Set divisor to 3 (lo byte) 38400 baud
@@ -81,6 +81,7 @@ void bezbios_serial_init() {
 	FCR = 0xC7;    // Enable FIFO, clear them, with 14-byte threshold
 	MCR = 0x08;    // route interrupt
 	IER = 0x01;    // receive IRQ enabled
+	bezbios_enable_irq(INT);
 }
 
 

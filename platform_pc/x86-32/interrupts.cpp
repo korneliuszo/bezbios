@@ -49,17 +49,13 @@ void bezbios_irq_idt(unsigned char irqn,void (*irqfn)(struct interrupt_frame *),
 	}
 }
 
-static void (*volatile hwirq[16])(unsigned char);
-
-template <unsigned char IRQ>
+template<unsigned char IRQ>
+__attribute__((weak))
 __attribute__((interrupt))
-static void ll_hw_int(struct interrupt_frame *)
-{
-	if (hwirq[IRQ])
-		hwirq[IRQ](IRQ);
-	else
-		bezbios_int_ack(IRQ); //eat spurious interrupts
-}
+void bezbios_imp_hw_req<IRQ>::f(struct interrupt_frame *)
+    {
+    	bezbios_int_ack(IRQ); //eat spurious interrupts
+    }
 
 void bezbios_int_ack(unsigned char IRQ)
 {
@@ -74,7 +70,7 @@ public:
     static inline void f()
     {
     	unsigned char irq_offset=(I<8)?0x20:(0x28-8);
-    	bezbios_irq_idt(I+irq_offset,ll_hw_int<I>);
+    	bezbios_irq_idt(I+irq_offset,bezbios_imp_hw_req<I>::f);
         _hwirqloop_init<I+1>::f();
     }
 };
@@ -106,11 +102,6 @@ void bezbios_init_interrupts(void)
 
 	asm volatile("lidt (%0) " :  : "r"(&idt_seg));
 	asm volatile("sti"); //now we can start interrupts
-}
-
-void bezbios_hwirq_insert(unsigned char irqn,void (*irqfn)(unsigned char))
-{
-	hwirq[irqn] = irqfn;
 }
 
 void bezbios_disable_irq(unsigned char IRQline) {

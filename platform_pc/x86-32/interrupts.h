@@ -14,7 +14,6 @@ extern "C" {
 
 void bezbios_init_interrupts(void);
 
-void bezbios_hwirq_insert(unsigned char irqn,void (*irqfn)(unsigned char));
 void bezbios_int_ack(unsigned char IRQ);
 void bezbios_disable_irq(unsigned char IRQline);
 void bezbios_enable_irq(unsigned char IRQline);
@@ -36,5 +35,11 @@ void bezbios_delay_ms(int delay);
 #endif
 
 void bezbios_irq_idt(unsigned char irqn,void (*irqfn)(struct interrupt_frame *), unsigned char dpl=0, bool trap=false);
+
+template<unsigned char IRQ>
+class bezbios_imp_hw_req {
+public:
+    static void f(struct interrupt_frame *);
+};
 
 #endif /* PLATFORM_PC_X86_32_INTERRUPTS_H_ */
