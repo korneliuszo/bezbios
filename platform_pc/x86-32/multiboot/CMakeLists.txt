@@ -27,7 +27,7 @@ function(add_executable target_name)
         	${target_name}.img
         	${target_name}.iso
     	COMMAND ${CMAKE_OBJDUMP} -h -S
-    		$<TARGET_FILE:${target_name}> > $<TARGET_FILE:${target_name}>.lss
+    		$<TARGET_FILE:${target_name}> | c++filt > $<TARGET_FILE:${target_name}>.lss
     	COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:${target_name}>
         	-o $<TARGET_FILE:${target_name}>.stripped
     	COMMAND truncate -s 1440k
