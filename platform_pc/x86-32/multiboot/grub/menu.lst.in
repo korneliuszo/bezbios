@@ -1,0 +1,5 @@
+timeout   1
+default   0
+
+title @target_name@ 
+kernel /@target_name@.stripped

@@ -7,7 +7,7 @@ else()
 target_sources(crt0 PRIVATE crt0.cc)
 endif()
 
-set(CONFIG_TGTMB_BOOTLOADER syslinux CACHE STRING "Choose bootloader")
+set(CONFIG_TGTMB_BOOTLOADER grub CACHE STRING "Choose bootloader")
 
 add_subdirectory(${CONFIG_TGTMB_BOOTLOADER})
 
