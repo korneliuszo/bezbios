@@ -8,13 +8,16 @@
 #include "bezbios_sched_api.h"
 
 void BezBios::Sched::Mutex::aquire() {
+	int tid = bezbios_sched_get_tid();
 	asm("cli");
 	while (locked) {
-		waiting.set(bezbios_sched_get_tid(), 1);
+		waiting.set(tid, 1);
+		bezbios_sched_task_ready(tid,0);
 		bezbios_sched_switch_context (locked);
 		asm("cli");
 	}
-	locked = bezbios_sched_get_tid();
+	locked = tid;
+	waiting.set(tid, 0);
 	asm("sti");
 }
 void BezBios::Sched::Mutex::release() {

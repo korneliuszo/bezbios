@@ -57,8 +57,7 @@ void bezbios_imp_hw_req<0>::f(struct interrupt_frame *)
 	int tid = bezbios_sched_get_tid();
 	if(tid) // if in main/idle task we don't do preemption
 	{
-		bezbios_sched_task_ready(tid,1);
-		bezbios_sched_free_cpu();
+		bezbios_sched_free_cpu(1);
 	}
 }
 
@@ -74,7 +73,8 @@ void bezbios_delay_ms(int ms)
 	int tid = bezbios_sched_get_tid();
 	DelayList* ptr=&delay_tbl[tid];
 	ENTER_ATOMIC();
-	long timeout = bezbios_get_ms() + ms;
+	long now = bezbios_get_ms();
+	long timeout = now + ms;
 	ptr->timeout = timeout;
 
 	DelayList* oldhead = nullptr;
@@ -101,6 +101,5 @@ void bezbios_delay_ms(int ms)
 		oldhead->next = ptr;
 	}
 	EXIT_ATOMIC();
-	bezbios_sched_task_ready(tid,0);
-	bezbios_sched_free_cpu();
+	bezbios_sched_free_cpu(0);
 }

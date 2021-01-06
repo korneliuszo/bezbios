@@ -21,7 +21,7 @@ void bezbios_main()
 
 	while(1)
 	{
-		while(bezbios_sched_free_cpu());
+		while(bezbios_sched_free_cpu(0));
 		asm("hlt");
 		asm("nop");
 	}

@@ -24,7 +24,7 @@ void bezbios_sched_destroy_task(int tid);
 void bezbios_sched_task_ready(int tid, int is_ready);
 void bezbios_sched_wfi(int interrupt);
 void bezbios_sched_interrupt_handled(int interrupt);
-int bezbios_sched_free_cpu();
+int bezbios_sched_free_cpu(int reschedule);
 int bezbios_sched_free_cpu_exit();
 
 #define BEZBIOS_CREATE_PROCESS(fn,size) \
@@ -67,27 +67,29 @@ public:
 		for_task = bezbios_sched_get_tid();
 	}
 	T future_data() {
+		bezbios_sched_task_ready(for_task,0);
 		bezbios_sched_switch_context(yield_task);
 		return value;
 	}
 	void yield_data(T val) {
 		value = val;
+		bezbios_sched_task_ready(yield_task,0);
 		bezbios_sched_switch_context(for_task);
 	}
 };
 
 template<long SIZE>
 class Bitfield{
-	typedef unsigned int CTRT;
+	typedef volatile unsigned int CTRT;
 	CTRT field[((sizeof(CTRT)*8)-1+(SIZE))/(sizeof(CTRT)*8)];
 public:
-	int get(long idx)
+	int get(long idx) volatile
 	{
 		int widx = idx / (8*sizeof(CTRT));
 		int bit = idx  % (8*sizeof(CTRT));
 		return !!(field[widx] & (1<<bit));
 	}
-	void set(long idx, int val)
+	void set(long idx, int val) volatile
 	{
 		int widx = idx / (8*sizeof(CTRT));
 		int bit = idx  % (8*sizeof(CTRT));
@@ -100,8 +102,8 @@ public:
 
 class Mutex{
 private:
-	Bitfield<CONFIG_MAX_THREADS> waiting;
-	int locked; //thread id, thread 0 cannot into mutexes
+	volatile Bitfield<CONFIG_MAX_THREADS> waiting;
+	volatile int locked; //thread id, thread 0 cannot into mutexes
 public:
 	void aquire();
 	void release();
