@@ -23,3 +23,9 @@ class tlay2_monitor():
         return self.conn.msg(struct.pack("<BLH",4,addr, l))
     def getmem(self,addr,l):
         return b"".join([self.getmem_page(addr+i,min(512,l-i)) for i in range(0, l, 512)])
+    def outs(self,port,byte):
+        self.conn.msg(struct.pack("<BHH",5,port,byte))
+        return
+    def ins(self,port):
+        ret=self.conn.msg(struct.pack("<BH",6,port))
+        return struct.unpack("<H",ret)[0]

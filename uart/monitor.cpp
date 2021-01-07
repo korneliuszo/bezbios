@@ -55,5 +55,22 @@ void tlay2_monitor(Tlay2 & tlay2)
 			tlay2.reply(getmem_buff,len);
 		}
 		break;
+	case 0x05: // outs
+		if (tlay2.len == 5)
+		{
+			outs(get_short_le(&tlay2.payload[1]),get_short_le(&tlay2.payload[3]));
+			io_wait(0x01);
+			tlay2.reply(nullptr,0);
+		}
+		break;
+	case 0x06: //ins
+		if (tlay2.len == 3)
+		{
+			unsigned short ret=ins(get_short_le(&tlay2.payload[1]));
+			unsigned char buff[2];
+			put_short_le(buff,ret);
+			tlay2.reply(buff,2);
+		}
+		break;
 	}
 }

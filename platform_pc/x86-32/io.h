@@ -20,6 +20,18 @@ static inline void outb(unsigned short port,unsigned char val)
 	asm volatile ("outb %0, %1" : : "a"(val), "Nd"(port));
 }
 
+static inline unsigned short ins(unsigned short port)
+{
+	unsigned short ret;
+	asm volatile ("in %1, %0" : "=a"(ret): "Nd"(port));
+	return ret;
+}
+
+static inline void outs(unsigned short port,unsigned short val)
+{
+	asm volatile ("out %0, %1" : : "a"(val), "Nd"(port));
+}
+
 static inline void io_wait(unsigned char point)
 {
     asm volatile ( "outb %0, $0x80" : : "a"(point) );

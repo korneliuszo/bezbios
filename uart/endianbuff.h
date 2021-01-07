@@ -24,4 +24,10 @@ static inline unsigned long get_long_le(const unsigned char *buff)
 	return ret;
 }
 
+static inline void put_short_le(unsigned char *buff, unsigned short val)
+{
+	buff[0] = val;
+	buff[1] = val>>8;
+}
+
 #endif /* UART_ENDIANBUFF_H_ */
