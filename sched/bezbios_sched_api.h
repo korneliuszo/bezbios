@@ -23,15 +23,14 @@ void bezbios_sched_destroy_task(int tid);
 
 void bezbios_sched_task_ready(int tid, bool is_ready);
 int bezbios_sched_free_cpu(bool reschedule);
-int bezbios_sched_free_cpu_exit();
+void bezbios_sched_exit(int tid);
 
 #define BEZBIOS_CREATE_PROCESS(fn,size) \
 		static int fn ## _stack[size]; \
 		static void fn ## _entry(void *) \
 		{ \
 			fn(); \
-			bezbios_sched_task_ready(bezbios_sched_get_tid(),0); \
-			bezbios_sched_free_cpu_exit(); \
+			bezbios_sched_exit(bezbios_sched_get_tid()); \
 		} \
 		__attribute((constructor)) \
 		static \

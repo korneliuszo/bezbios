@@ -16,10 +16,8 @@ void bezbios_sched_task_ready(int tid, bool is_ready)
 		threads_wfi.set(tid, is_ready);
 }
 
-
-int bezbios_sched_free_cpu(bool reschedule)
+static int rr_next_task()
 {
-	asm("cli");
 	int tid = bezbios_sched_get_tid();
 	int wait_tid = 0; // falltrough to bezbios_main task
 	// rr no priority
@@ -33,10 +31,18 @@ int bezbios_sched_free_cpu(bool reschedule)
 		if(!wait_tid && threads_wfi.get(it))
 			wait_tid = it;
 	}
+	return wait_tid;
+}
+
+int bezbios_sched_free_cpu(bool reschedule)
+{
+	asm("cli");
+	int tid = bezbios_sched_get_tid();
+	bezbios_sched_task_ready(tid,reschedule);
+	int wait_tid = rr_next_task();
 	if (wait_tid != tid)
 	{
 		bezbios_sched_task_ready(wait_tid, 0);
-		bezbios_sched_task_ready(tid,reschedule);
 		bezbios_sched_switch_context(wait_tid);
 		return 1;
 	}
@@ -47,26 +53,13 @@ int bezbios_sched_free_cpu(bool reschedule)
 	return 0;
 }
 
-int bezbios_sched_free_cpu_exit()
+void bezbios_sched_exit(int tid)
 {
-	int tid = bezbios_sched_get_tid();
-	int wait_tid = 0; // falltrough to bezbios_main task
-	// rr no priority
-	for(int it=tid+1;it < CONFIG_MAX_THREADS;it++)
-	{
-		if(!wait_tid && threads_wfi.get(it))
-			wait_tid = it;
-	}
-	for(int it=0;it < tid+1;it++)
-	{
-		if(!wait_tid && threads_wfi.get(it))
-			wait_tid = it;
-	}
-	if (wait_tid != tid)
-	{
-		bezbios_sched_task_ready(wait_tid, 0);
-		bezbios_sched_switch_context_exit(wait_tid);
-		return 1;
-	}
-	return 0;
+	asm("cli");
+	bezbios_sched_task_ready(tid,0);
+	//TODO: remove wait from mutexes/conditionvariables
+
+	int wait_tid = rr_next_task();
+	bezbios_sched_switch_context(wait_tid);
+	return;
 }
