@@ -97,22 +97,33 @@ public:
 	}
 };
 
+
 class Mutex{
 private:
 	volatile Bitfield<CONFIG_MAX_THREADS> waiting;
 	volatile int locked; //thread id, thread 0 cannot into mutexes
+	Mutex * next;
 public:
 	void aquire();
 	void release();
+	void destroy_task(int tid);
+	Mutex();
 };
+
+extern Mutex * mutex_list_head;
 
 class ConditionVariable{
 private:
 	volatile Bitfield<CONFIG_MAX_THREADS> waiting;
+	ConditionVariable * next;
 public:
 	bool notify_all();
 	void wait();
+	void destroy_task(int tid);
+	ConditionVariable();
 };
+
+extern ConditionVariable * condition_variable_list_head;
 
 }
 }

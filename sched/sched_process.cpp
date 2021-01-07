@@ -57,8 +57,8 @@ void bezbios_sched_exit(int tid)
 {
 	asm("cli");
 	bezbios_sched_task_ready(tid,0);
-	//TODO: remove wait from mutexes/conditionvariables
-
+	BezBios::Sched::mutex_list_head->destroy_task(tid);
+	BezBios::Sched::condition_variable_list_head->destroy_task(tid);
 	int wait_tid = rr_next_task();
 	bezbios_sched_switch_context(wait_tid);
 	return;

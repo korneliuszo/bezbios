@@ -41,6 +41,25 @@ void BezBios::Sched::Mutex::release() {
 	}
 }
 
+void BezBios::Sched::Mutex::destroy_task(int tid)
+{
+	ENTER_ATOMIC();
+	for (Mutex * head=this;head!=nullptr;head=head->next)
+		head->waiting.set(tid,0);
+	EXIT_ATOMIC();
+}
+
+BezBios::Sched::Mutex * BezBios::Sched::mutex_list_head;
+
+BezBios::Sched::Mutex::Mutex()
+{
+	ENTER_ATOMIC();
+	next=BezBios::Sched::mutex_list_head;
+	BezBios::Sched::mutex_list_head=this;
+	EXIT_ATOMIC();
+
+}
+
 void BezBios::Sched::ConditionVariable::wait()
 {
 	int tid = bezbios_sched_get_tid();
@@ -64,6 +83,25 @@ bool BezBios::Sched::ConditionVariable::notify_all()
 	}
 	EXIT_ATOMIC();
 	return resheduleable;
+}
+
+void BezBios::Sched::ConditionVariable::destroy_task(int tid)
+{
+	ENTER_ATOMIC();
+	for (ConditionVariable * head=this;head!=nullptr;head=head->next)
+		head->waiting.set(tid,0);
+	EXIT_ATOMIC();
+}
+
+BezBios::Sched::ConditionVariable * BezBios::Sched::condition_variable_list_head;
+
+BezBios::Sched::ConditionVariable::ConditionVariable()
+{
+	ENTER_ATOMIC();
+	next=BezBios::Sched::condition_variable_list_head;
+	BezBios::Sched::condition_variable_list_head=this;
+	EXIT_ATOMIC();
+
 }
 
 
