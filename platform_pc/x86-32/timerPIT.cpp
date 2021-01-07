@@ -57,7 +57,7 @@ void bezbios_imp_hw_req<0>::f(struct interrupt_frame *)
 	int tid = bezbios_sched_get_tid();
 	if(tid) // if in main/idle task we don't do preemption
 	{
-		bezbios_sched_free_cpu(1);
+		//bezbios_sched_free_cpu(1); //commented out for nice threads
 	}
 }
 
