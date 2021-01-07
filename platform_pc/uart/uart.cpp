@@ -33,6 +33,9 @@ constexpr long FIFO_SIZE = 32;
 DEFINE_STATIC_FIFO(serial_rx,FIFO_SIZE);
 DEFINE_STATIC_FIFO(serial_tx,FIFO_SIZE);
 
+BezBios::Sched::ConditionVariable rx_cv;
+BezBios::Sched::ConditionVariable tx_cv;
+
 template<>
 __attribute__((interrupt))
 void bezbios_imp_hw_req<INT>::f(struct interrupt_frame *)
@@ -59,6 +62,7 @@ void bezbios_imp_hw_req<INT>::f(struct interrupt_frame *)
 				  break;
 			  }
 		  }
+		  tx_cv.notify_all();
 		  break;
 	case 0x04: //recv threshold
 	case 0x0C: //timeout
@@ -66,9 +70,9 @@ void bezbios_imp_hw_req<INT>::f(struct interrupt_frame *)
 		  {
 			  fifo_put(&serial_rx,RBR);
 		  }
+		  rx_cv.notify_all();
 		  break;
 	}
-	bezbios_sched_interrupt_handled(INT);
 	bezbios_int_ack(INT);
 }
 
@@ -97,7 +101,7 @@ void bezbios_serial_send(unsigned char byte) {
 			break;
 		}
 		EXIT_ATOMIC();
-		bezbios_sched_wfi(INT);
+		tx_cv.wait();
 	}
 }
 unsigned char bezbios_serial_recv() {
@@ -111,7 +115,7 @@ unsigned char bezbios_serial_recv() {
 			break;
 		}
 		EXIT_ATOMIC();
-		bezbios_sched_wfi(INT);
+		rx_cv.wait();
 	}
 	return c;
 }

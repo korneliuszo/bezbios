@@ -109,6 +109,14 @@ public:
 	void release();
 };
 
+class ConditionVariable{
+private:
+	volatile Bitfield<CONFIG_MAX_THREADS> waiting;
+public:
+	bool notify_all();
+	void wait();
+};
+
 }
 }
 
