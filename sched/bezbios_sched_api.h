@@ -21,10 +21,8 @@ int bezbios_sched_create_task(void (*entry)(void *), void *stackbottom, void * v
 void bezbios_sched_destroy_task(int tid);
 
 
-void bezbios_sched_task_ready(int tid, int is_ready);
-void bezbios_sched_wfi(int interrupt);
-void bezbios_sched_interrupt_handled(int interrupt);
-int bezbios_sched_free_cpu(int reschedule);
+void bezbios_sched_task_ready(int tid, bool is_ready);
+int bezbios_sched_free_cpu(bool reschedule);
 int bezbios_sched_free_cpu_exit();
 
 #define BEZBIOS_CREATE_PROCESS(fn,size) \

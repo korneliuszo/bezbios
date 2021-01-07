@@ -7,38 +7,17 @@
 
 #include "bezbios_sched_api.h"
 
-static volatile int threads_wfi[CONFIG_MAX_THREADS];
-// 0 - don't schedule/running
-// 1 - wait for free cpu
-// +2 - wait for interrupt
+static volatile  BezBios::Sched::Bitfield<CONFIG_MAX_THREADS> threads_wfi;
 
 
-void bezbios_sched_task_ready(int tid, int is_ready)
+
+void bezbios_sched_task_ready(int tid, bool is_ready)
 {
-		threads_wfi[tid] = is_ready;
-}
-void bezbios_sched_wfi(int interrupt)
-{
-	bezbios_sched_free_cpu(interrupt + 2);
-}
-void bezbios_sched_interrupt_handled(int interrupt)
-{
-	bool int_schedule = false;
-	for(int it=0;it < CONFIG_MAX_THREADS ;it++)
-	{
-		if(threads_wfi[it] == interrupt +2)
-		{
-			threads_wfi[it] = 1;
-			int_schedule = true;
-		}
-	}
-	if (int_schedule)
-	{
-		bezbios_sched_free_cpu(1);
-	}
+		threads_wfi.set(tid, is_ready);
 }
 
-int bezbios_sched_free_cpu(int reschedule)
+
+int bezbios_sched_free_cpu(bool reschedule)
 {
 	asm("cli");
 	int tid = bezbios_sched_get_tid();
@@ -46,12 +25,12 @@ int bezbios_sched_free_cpu(int reschedule)
 	// rr no priority
 	for(int it=tid+1;it < CONFIG_MAX_THREADS;it++)
 	{
-		if(!wait_tid && threads_wfi[it] == 1)
+		if(!wait_tid && threads_wfi.get(it))
 			wait_tid = it;
 	}
 	for(int it=0;it < tid+1;it++)
 	{
-		if(!wait_tid && threads_wfi[it] == 1)
+		if(!wait_tid && threads_wfi.get(it))
 			wait_tid = it;
 	}
 	if (wait_tid != tid)
@@ -75,17 +54,17 @@ int bezbios_sched_free_cpu_exit()
 	// rr no priority
 	for(int it=tid+1;it < CONFIG_MAX_THREADS;it++)
 	{
-		if(!wait_tid && threads_wfi[it] == 1)
+		if(!wait_tid && threads_wfi.get(it))
 			wait_tid = it;
 	}
 	for(int it=0;it < tid+1;it++)
 	{
-		if(!wait_tid && threads_wfi[it] == 1)
+		if(!wait_tid && threads_wfi.get(it))
 			wait_tid = it;
 	}
-	threads_wfi[wait_tid] = 0;
 	if (wait_tid != tid)
 	{
+		bezbios_sched_task_ready(wait_tid, 0);
 		bezbios_sched_switch_context_exit(wait_tid);
 		return 1;
 	}
