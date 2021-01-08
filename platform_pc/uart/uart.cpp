@@ -46,6 +46,8 @@ void bezbios_imp_hw_req<INT>::f(struct interrupt_frame *)
 		bezbios_int_ack(INT);
 		return; // not our irq (spurious?/another port?)
 	}
+	do
+	{
 	switch(IIR_cached&0x0E)
 	{
 	case 0x02: //transmit empty
@@ -62,17 +64,24 @@ void bezbios_imp_hw_req<INT>::f(struct interrupt_frame *)
 				  break;
 			  }
 		  }
-		  tx_cv.notify_all();
+		  if(tx_cv.notify_all())
+			  bezbios_sched_free_cpu(1);
 		  break;
 	case 0x04: //recv threshold
 	case 0x0C: //timeout
 		  while (LSR & 0x01)
 		  {
+			  if(fifo_check(&serial_rx) == FIFO_SIZE-1)
+				  if(rx_cv.notify_all())
+					  bezbios_sched_free_cpu(1);
 			  fifo_put(&serial_rx,RBR);
 		  }
-		  rx_cv.notify_all();
+		  if(rx_cv.notify_all())
+			  bezbios_sched_free_cpu(1);
 		  break;
 	}
+	IIR_cached = IIR;
+	} while(!(IIR_cached & 0x1));
 	bezbios_int_ack(INT);
 }
 
