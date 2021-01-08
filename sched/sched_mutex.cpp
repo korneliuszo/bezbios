@@ -10,7 +10,7 @@
 
 void BezBios::Sched::Mutex::aquire() {
 	int tid = bezbios_sched_get_tid();
-	asm("cli");
+	ENTER_ATOMIC();
 	while (locked) {
 		waiting.set(tid, 1);
 		bezbios_sched_task_ready(tid,0);
@@ -19,9 +19,10 @@ void BezBios::Sched::Mutex::aquire() {
 	}
 	locked = tid;
 	waiting.set(tid, 0);
-	asm("sti");
+	EXIT_ATOMIC();
 }
 void BezBios::Sched::Mutex::release() {
+	ENTER_ATOMIC();
 	locked = 0;
 	int tid = bezbios_sched_get_tid();
 	int wait_tid = 0; // falltrough to bezbios_main task
@@ -37,8 +38,10 @@ void BezBios::Sched::Mutex::release() {
 	}
 	if (wait_tid)
 	{
+		waiting.set(wait_tid,0);
 		bezbios_sched_task_ready(wait_tid,1);
 	}
+	EXIT_ATOMIC();
 }
 
 void BezBios::Sched::Mutex::destroy_task(int tid)

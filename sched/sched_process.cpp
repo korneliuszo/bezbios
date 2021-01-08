@@ -6,6 +6,7 @@
  */
 
 #include "bezbios_sched_api.h"
+#include "io.h"
 
 static volatile  BezBios::Sched::Bitfield<CONFIG_MAX_THREADS> threads_wfi;
 
@@ -36,7 +37,7 @@ static int rr_next_task()
 
 int bezbios_sched_free_cpu(bool reschedule)
 {
-	asm("cli");
+	ENTER_ATOMIC();
 	int tid = bezbios_sched_get_tid();
 	bezbios_sched_task_ready(tid,reschedule);
 	int wait_tid = rr_next_task();
@@ -48,7 +49,7 @@ int bezbios_sched_free_cpu(bool reschedule)
 	}
 	else
 	{
-		asm("sti");
+		EXIT_ATOMIC();
 	}
 	return 0;
 }
