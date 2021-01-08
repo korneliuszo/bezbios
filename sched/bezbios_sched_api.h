@@ -78,7 +78,8 @@ public:
 template<long SIZE>
 class Bitfield{
 	typedef volatile unsigned int CTRT;
-	CTRT field[((sizeof(CTRT)*8)-1+(SIZE))/(sizeof(CTRT)*8)];
+	static constexpr long len = ((sizeof(CTRT)*8)-1+(SIZE))/(sizeof(CTRT)*8);
+	CTRT field[len];
 public:
 	int get(long idx) volatile
 	{
