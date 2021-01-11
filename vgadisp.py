@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import tlay2_monitor
+import palette
 
 m=tlay2_monitor.tlay2_monitor()
 
@@ -60,27 +61,39 @@ import sys
 im=Image.open(sys.argv[1]).convert("RGB")
 im=im.resize((640,480))
 pal_image= Image.new("P", (1,1))
-pal_image.putpalette( (
-    0,0,0,
-    0,0,0xAA,
-    0,0xAA,0,
-    0,0xAA,0xAA,
-    0xAA,0,0,
-    0xAA,0,0XAA,
-    0xAA,0x55,0,
-    0xAA,0xAA,0xAA,
-    0x55,0x55,0x55,
-    0x55,0x55,0xff,
-    0x55,0xff,0x55,
-    0x55,0xff,0xff,
-    0xff,0x55,0x55,
-    0xff,0x55,0xff,
-    0xff,0xff,0x00,
-    0xff,0xff,0xff,
-    ) + (0,0,0)*(256-16))
-
+pal_pal = list()
+for i in range(64):
+    pal_pal.extend((
+    (i>>2&1)*85+(i>>5&1)*170, 
+    (i>>1&1)*85+(i>>4&1)*170,
+    (i>>0&1)*85+(i>>3&1)*170))
+pal_pal.extend((0,0,0)*(256-64))
+pal_image.putpalette(
+#print(
+   pal_pal)
 im=im.quantize(palette=pal_image)
+im=im.quantize(colors=16)
+im.save("tmp.png")
+pal_pal = im.getpalette()
 from bitstring import BitArray
+
+
+im_pal = dict()
+
+i=0
+for c in im.getdata():
+    if not c in im_pal.keys():
+        r=(pal_pal[c*3]//85)
+        g=(pal_pal[c*3+1]//85)
+        b=(pal_pal[c*3+2]//85)
+        im_pal[c] = (0 |
+            ((r&1)<<5) | ((r&2)<<1) |
+            ((g&1)<<4) | ((g&2)<<0) |
+            ((b&1)<<3) | ((b&2)>>1))
+        i+=1
+
+#ivd = {c: i for i,c in im_pal.items()}
+
 
 for plane in range(4):
     set_plane(plane)
@@ -88,3 +101,9 @@ for plane in range(4):
     for c in im.getdata():
         s += '0b1' if c&(1<<plane) else '0b0'
     m.putmem(0xA0000,s.tobytes())
+
+ega_pal = ((k,v) for k,v in im_pal.items())
+#for k,v in im_pal.items():
+#    ega_pal.append((k,v))
+
+palette.set_ega_palette(m,ega_pal)
