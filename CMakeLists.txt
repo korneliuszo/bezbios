@@ -17,6 +17,7 @@ add_subdirectory(crt)
 
 add_subdirectory(sched)
 add_subdirectory(uart)
+add_subdirectory(display)
 
 add_subdirectory(main)
 add_subdirectory(task_low_test)

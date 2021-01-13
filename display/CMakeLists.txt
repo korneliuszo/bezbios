@@ -1,0 +1,3 @@
+add_library(display_api INTERFACE)
+target_include_directories(display_api INTERFACE ${PROJECT_SOURCE_DIR})
+target_link_libraries(display_api)
