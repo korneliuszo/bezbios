@@ -38,28 +38,28 @@ static inline void io_wait(unsigned char point)
 }
 
 template
-<unsigned short PORT>
+<unsigned short PORT_OUT, unsigned short PORT_IN = PORT_OUT>
 class ByteIO {
 public:
 	operator unsigned char() const
 	{
-		return inb(PORT);
+		return inb(PORT_IN);
 	}
 	unsigned char operator =(const unsigned char& byte)
 	{
-		outb(PORT,byte);
+		outb(PORT_OUT,byte);
 		return byte;
 	}
 	unsigned char operator |=(const unsigned char& byte)
 	{
-		unsigned char rval=byte | inb(PORT);
-		outb(PORT,rval);
+		unsigned char rval=byte | inb(PORT_IN);
+		outb(PORT_OUT,rval);
 		return rval;
 	}
 	unsigned char operator &=(const unsigned char& byte)
 	{
-		unsigned char rval=byte & inb(PORT);
-		outb(PORT,rval);
+		unsigned char rval=byte & inb(PORT_IN);
+		outb(PORT_OUT,rval);
 		return rval;
 	}
 };
