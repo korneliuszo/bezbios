@@ -5,46 +5,7 @@ import palette
 
 m=tlay2_monitor.tlay2_monitor()
 
-m.inb(0x3DA)
-m.outb(0x3C2,0xE3) #VGA_MISC_WRITE
-
-seq = [0x03, 0x01, 0x08, 0x00, 0x06]
-for i in range(len(seq)):
-    m.outb(0x3C4,i) #VGA_SEQ_INDEX
-    m.outb(0x3C5,seq[i]) #VGA_SEQ_DATA
-
-m.outb(0x3D4, 0x03); #VGA_CRTC_INDEX
-m.outb(0x3D5, 
-        m.inb(0x3D5) | 0x80); #VGA_CRTC_DATA
-m.outb(0x3D4, 0x11); #VGA_CRTC_INDEX
-m.outb(0x3D5, 
-        m.inb(0x3D5) & ~0x80); #VGA_CRTC_DATA
-
-crtc = [
-	0x5F, 0x4F, 0x50, 0x82, 0x54, 0x80, 0x0B, 0x3E,
-	0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0xEA, 0x0C, 0xDF, 0x28, 0x00, 0xE7, 0x04, 0xE3,
-	0xFF,]
-for i in range(len(crtc)):
-    m.outb(0x3D4,i) #VGA_CRTC_INDEX
-    m.outb(0x3D5,crtc[i]) #VGA_CRTC_DATA
-
-gc=[
-    	0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x05, 0x0F,
-	0xFF,]
-for i in range(len(gc)):
-    m.outb(0x3CE,i) #VGA_GC_INDEX
-    m.outb(0x3CF,gc[i]) #VGA_GC_DATA
-ac = [
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x14, 0x07,
-	0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
-	0x01, 0x00, 0x0F, 0x00, 0x00
-        ]
-for i in range(len(ac)):
-    m.outb(0x3C0,i) #VGA_AC_INDEX
-    m.outb(0x3C0,ac[i]) #VGA_AC_DATA
-m.inb(0x3DA) #VGA_INSTAT_READ
-m.outb(0x3C0,0x20) #VGA_AC_INDEX
+m.runfunc(0)
 
 def set_plane(p):
     p &= 3
@@ -77,33 +38,38 @@ im.save("tmp.png")
 pal_pal = im.getpalette()
 from bitstring import BitArray
 
-
-im_pal = dict()
-
-i=0
+p = list()
 for c in im.getdata():
-    if not c in im_pal.keys():
-        r=(pal_pal[c*3]//85)
-        g=(pal_pal[c*3+1]//85)
-        b=(pal_pal[c*3+2]//85)
-        im_pal[c] = (0 |
-            ((r&1)<<5) | ((r&2)<<1) |
-            ((g&1)<<4) | ((g&2)<<0) |
-            ((b&1)<<3) | ((b&2)>>1))
-        i+=1
+    if c not in p:
+        p.append(c)
+p.sort()
+print(p)
 
-#ivd = {c: i for i,c in im_pal.items()}
+im_pal = []
 
+for i in range(16):
+        r=pal_pal[i*3]
+        g=pal_pal[i*3+1]
+        b=pal_pal[i*3+2]
+        im_pal.append((r,g,b))
 
-for plane in range(4):
-    set_plane(plane)
-    s=BitArray()
-    for c in im.getdata():
-        s += '0b1' if c&(1<<plane) else '0b0'
-    m.putmem(0xA0000,s.tobytes())
+class LineSelector:
+    def __init__(self,line):
+        self.line = line
+    def getdata(self):
+        method = Image.EXTENT
+        data = (0, line, 640, line+1)
+        return method, data
 
-ega_pal = ((k,v) for k,v in im_pal.items())
-#for k,v in im_pal.items():
-#    ega_pal.append((k,v))
+for line in range(480):
+    b=im.transform((640,1),LineSelector(line)).getdata()
+    import struct
+    m.runfunc(1,struct.pack("<HH",0,line)+bytes(b))
 
-palette.set_ega_palette(m,ega_pal)
+print(im_pal)
+
+ega_pal = b''
+for pal in im_pal:
+    ega_pal+=struct.pack("<BBB",pal[0],pal[1],pal[2])
+
+m.runfunc(2,struct.pack("<B",0)+ega_pal)

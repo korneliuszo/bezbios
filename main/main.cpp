@@ -9,7 +9,9 @@
 #include <uart/bezbios_uart_api.h>
 #include <interrupts.h>
 #include <uart/tlay2.hpp>
+#include <display/bezbios_display_api.h>
 #include <uart/monitor.hpp>
+#include <uart/endianbuff.h>
 
 /*class Test
 {
@@ -85,6 +87,36 @@ struct Tlay2Payloads tlay2_payloads[] = {
 		{0,nullptr} // terminator
 };
 
+static long monitor_init_display(unsigned char [],long len)
+{
+	if (len !=0)
+		return -1;
+	init_display();
+	return 0;
+}
+
+static long monitor_put_next_pixels(unsigned char data[],long len)
+{
+	if (len < 4)
+		return -1;
+	int x= get_short_le(&data[0]);
+	int y= get_short_le(&data[2]);
+	put_next_pixels(x,y,len-4,&data[4]);
+	return 0;
+}
+
+static long monitor_put_palette(unsigned char data[],long len)
+{
+	if (len < 1)
+		return -1;
+	int start = data[0];
+	put_palette(start,(len-1)/3,&data[1]);
+	return 0;
+}
+
 const MonitorFunctions monitor_functions[] = {
+		{0,MonitorFunctions::Type::ARRAY_ARGUMENTS, monitor_init_display},
+		{1,MonitorFunctions::Type::ARRAY_ARGUMENTS, monitor_put_next_pixels},
+		{2,MonitorFunctions::Type::ARRAY_ARGUMENTS, monitor_put_palette},
 		{0,MonitorFunctions::Type::TERMINATOR, nullptr}
 };
