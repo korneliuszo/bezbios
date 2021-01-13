@@ -29,3 +29,5 @@ class tlay2_monitor():
     def ins(self,port):
         ret=self.conn.msg(struct.pack("<BH",6,port))
         return struct.unpack("<H",ret)[0]
+    def runfunc(self,id,params=b''):
+        return self.conn.msg(struct.pack("<BB",7,id)+params)

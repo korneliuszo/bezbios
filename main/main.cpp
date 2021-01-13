@@ -9,6 +9,7 @@
 #include <uart/bezbios_uart_api.h>
 #include <interrupts.h>
 #include <uart/tlay2.hpp>
+#include <uart/monitor.hpp>
 
 /*class Test
 {
@@ -84,3 +85,6 @@ struct Tlay2Payloads tlay2_payloads[] = {
 		{0,nullptr} // terminator
 };
 
+const MonitorFunctions monitor_functions[] = {
+		{0,MonitorFunctions::Type::TERMINATOR, nullptr}
+};

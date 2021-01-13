@@ -8,6 +8,7 @@
 #include "tlay2.hpp"
 #include "io.h"
 #include "endianbuff.h"
+#include "monitor.hpp"
 
 static unsigned char getmem_buff[512];
 
@@ -70,6 +71,29 @@ void tlay2_monitor(Tlay2 & tlay2)
 			unsigned char buff[2];
 			put_short_le(buff,ret);
 			tlay2.reply(buff,2);
+		}
+		break;
+	case 0x07: //call //
+		if (tlay2.len >= 2)
+		{
+			const MonitorFunctions *fun;
+			for (fun=monitor_functions;
+					fun->type != MonitorFunctions::Type::TERMINATOR;
+					fun++)
+				if(fun->funid == tlay2.payload[1])
+					break;
+			switch(fun->type)
+			{
+			case MonitorFunctions::Type::ARRAY_ARGUMENTS:
+			{
+				long len=fun->callback.array_arguments(&tlay2.payload[2],tlay2.len-2);
+				if(len>=0)tlay2.reply(&tlay2.payload[2],len);
+				break;
+			}
+			default:
+			case MonitorFunctions::Type::TERMINATOR:
+				break;
+			}
 		}
 		break;
 	}
