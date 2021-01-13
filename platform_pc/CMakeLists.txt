@@ -1,4 +1,5 @@
 add_subdirectory(uart)
+add_subdirectory(ega)
 if(CONFIG_TGT32)
 	add_subdirectory(x86-32)
 endif()
