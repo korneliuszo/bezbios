@@ -90,5 +90,7 @@ static inline void sti(unsigned long prev)
 #define EXIT_ATOMIC() \
 	sti(_is_interrupt)
 
+#define MEM_BARRIER() \
+	asm volatile ("" : : : "memory")
 
 #endif /* PLATFORM_PC_X86_32_IO_H_ */
