@@ -22,13 +22,13 @@ void init_PIT();
 
 void bezbios_delay_ms(int delay);
 
-#define BEZBIOS_INIT_PIT() \
-		__attribute((constructor)) \
-		static \
-		void PIT_init() \
-		{ \
-			init_PIT(); \
-		}
+class BEZBIOS_INIT_PIT {
+public:
+	BEZBIOS_INIT_PIT()
+	{
+		init_PIT();
+	}
+};
 
 #ifdef __cplusplus
 }

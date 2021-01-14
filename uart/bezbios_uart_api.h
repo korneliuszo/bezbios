@@ -17,16 +17,17 @@ void bezbios_serial_init();
 void bezbios_serial_send(unsigned char byte);
 unsigned char bezbios_serial_recv();
 
-#define BEZBIOS_INIT_SERIAL() \
-		__attribute((constructor)) \
-		static \
-		void SERIAL_init() \
-		{ \
-			bezbios_serial_init(); \
-		}
-
 #ifdef __cplusplus
 }
+
+class BEZBIOS_INIT_SERIAL{
+public:
+	BEZBIOS_INIT_SERIAL()
+	{
+		bezbios_serial_init();
+	}
+};
+
 #endif
 
 #endif /* SCHED_BEZBIOS_SCHED_API_H_ */

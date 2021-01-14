@@ -25,25 +25,25 @@ void bezbios_sched_task_ready(int tid, bool is_ready);
 int bezbios_sched_free_cpu(bool reschedule);
 void bezbios_sched_exit(int tid);
 
-#define BEZBIOS_CREATE_PROCESS(fn,size) \
-		static int fn ## _stack[size]; \
-		static void fn ## _entry(void *) \
-		{ \
-			fn(); \
-			bezbios_sched_exit(bezbios_sched_get_tid()); \
-		} \
-		__attribute((constructor)) \
-		static \
-		void fn ## _init() \
-		{ \
-			int stid=bezbios_sched_create_task(fn ## _entry, \
-					&fn ## _stack[size-1], \
-					nullptr); \
-			bezbios_sched_task_ready(stid,1); \
-		}
-
 #ifdef __cplusplus
 }
+
+template<void(*fn)(void), long size>
+class BEZBIOS_CREATE_PROCESS
+{
+private:
+	int stack[size] = {};
+	static void entry(void *)	 {
+		fn();
+		bezbios_sched_exit(bezbios_sched_get_tid());
+	}
+public:
+	BEZBIOS_CREATE_PROCESS()
+	{
+		int stid=bezbios_sched_create_task(entry, &stack[size-1], nullptr);
+		bezbios_sched_task_ready(stid,1);
+	}
+};
 
 namespace BezBios {
 namespace Sched {

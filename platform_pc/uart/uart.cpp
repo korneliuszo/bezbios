@@ -12,6 +12,8 @@
 #include <sched/bezbios_sched_api.h>
 #include <uart/fifo.h>
 
+static BEZBIOS_INIT_SERIAL serial_port;
+
 constexpr unsigned short PORT = 0x3F8;
 constexpr unsigned char INT = 4;
 

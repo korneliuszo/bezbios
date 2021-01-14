@@ -77,10 +77,9 @@ void third()
 
  }
 
-BEZBIOS_CREATE_PROCESS(first,4096)
-BEZBIOS_CREATE_PROCESS(third,4096)
-BEZBIOS_INIT_PIT()
-BEZBIOS_INIT_SERIAL()
+static BEZBIOS_CREATE_PROCESS<first,4096> first_thread;
+static BEZBIOS_CREATE_PROCESS<third,4096> third_thread;
+static BEZBIOS_INIT_PIT delay_implementation;
 
 struct Tlay2Payloads tlay2_payloads[] = {
 		{1,tlay2_monitor},
