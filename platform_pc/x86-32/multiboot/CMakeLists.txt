@@ -11,10 +11,13 @@ set(CONFIG_TGTMB_BOOTLOADER grub CACHE STRING "Choose bootloader")
 
 add_subdirectory(${CONFIG_TGTMB_BOOTLOADER})
 
+set_property(GLOBAL PROPERTY MBF ${CMAKE_CURRENT_SOURCE_DIR})
+
 function(add_executable target_name)
-	set(THISDIR ${CMAKE_SOURCE_DIR}/platform_pc/x86-32/multiboot)
+	get_property(THISDIR GLOBAL PROPERTY MBF)
+	get_property(SCHED_MAIN GLOBAL PROPERTY SCHED_MAIN)
 	_add_executable(${target_name} ${ARGN})
-	target_sources(${target_name} PRIVATE ${CMAKE_SOURCE_DIR}/sched/sched_main.cpp)
+	target_sources(${target_name} PRIVATE ${SCHED_MAIN})
 	target_link_options(${target_name} PUBLIC
 		-m32 -nostdlib -T ${THISDIR}/multiboot.ld -static
 		-Wl,-Map=$<TARGET_FILE:${target_name}>.map)

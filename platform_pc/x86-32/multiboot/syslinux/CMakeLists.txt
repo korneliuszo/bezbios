@@ -1,5 +1,7 @@
+set_property(GLOBAL PROPERTY MBSF ${CMAKE_CURRENT_SOURCE_DIR})
+
 function(package_floppy target_name)
-	set(THISDIR ${CMAKE_SOURCE_DIR}/platform_pc/x86-32/multiboot/syslinux)
+	get_property(THISDIR GLOBAL PROPERTY MBGF)
 	configure_file(${THISDIR}/syslinux.cfg.in syslinux.cfg @ONLY)
 	add_custom_target(
 			${target_name}.img ALL
