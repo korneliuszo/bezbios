@@ -101,7 +101,7 @@ void Tlay2::msgout(unsigned char ctr,unsigned char pid, const unsigned char * pa
 	send_mutex.release();
 }
 
-void Tlay2::dbgout(char * msg)
+void Tlay2::dbgout(const char * msg)
 {
 	send_mutex.aquire();
 	send_crc = crc_init();
