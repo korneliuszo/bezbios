@@ -40,7 +40,7 @@ private:
 public:
 	BEZBIOS_CREATE_PROCESS()
 	{
-		int stid=bezbios_sched_create_task(entry, &stack[size-1], nullptr);
+		int stid=bezbios_sched_create_task(entry, &stack[size-1], this);
 		bezbios_sched_task_ready(stid,1);
 	}
 };
