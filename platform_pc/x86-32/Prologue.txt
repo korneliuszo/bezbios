@@ -1,1 +1,0 @@
-add_compile_options(-march=i486 -O2 -m32 -mgeneral-regs-only -nostdinc -fno-pic)

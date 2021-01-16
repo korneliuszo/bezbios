@@ -1,4 +1,5 @@
 
+option(CONFIG_CACHED_ASM "Use asm" ON)
 
 option(CONFIG_TGTMB "Target multiboot" ON)
 if(CONFIG_TGTMB)
@@ -6,8 +7,6 @@ if(CONFIG_TGTMB)
 endif()
 
 add_library(sched STATIC sched_low.cpp)
-
-option(CONFIG_CACHED_ASM "Use asm" ON)
 
 if(CONFIG_CACHED_ASM)
 enable_language(ASM)
@@ -19,6 +18,7 @@ endif()
 add_library(gcc_internals STATIC stack_protector_iface.c)
 set_property(TARGET gcc_internals
              PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
+target_link_libraries(gcc_internals crt0)
 
 configure_file(thread_py.h.in thread_py.h @ONLY)
 target_include_directories(sched
@@ -26,7 +26,7 @@ target_include_directories(sched
 		${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_link_libraries(sched sched_api)
+target_link_libraries(sched sched_api crt)
 
 add_library(interrupts
 	STATIC
@@ -39,4 +39,4 @@ target_include_directories(interrupts
 	INTERFACE
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(interrupts sched_api)
+target_link_libraries(interrupts sched_api crt)

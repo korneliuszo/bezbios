@@ -2,7 +2,7 @@ add_library(uart_api INTERFACE)
 target_include_directories(uart_api INTERFACE ${PROJECT_SOURCE_DIR})
 
 add_library(tlay2 STATIC tlay2.cpp crc8.c)
-target_link_libraries(tlay2 sched_api)
+target_link_libraries(tlay2 sched_api crt)
 target_include_directories(tlay2 PUBLIC ${PROJECT_SOURCE_DIR})
 
 add_library(tlay2_uart STATIC tlay2_uart.cpp)

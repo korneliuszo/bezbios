@@ -1,5 +1,5 @@
 set_property(GLOBAL PROPERTY MBGF ${CMAKE_CURRENT_SOURCE_DIR})
-	
+
 function(package_floppy target_name)
 	get_property(THISDIR GLOBAL PROPERTY MBGF)
 	configure_file(${THISDIR}/menu.lst.in menu.lst @ONLY)

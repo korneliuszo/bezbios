@@ -5,6 +5,7 @@
  *      Author: Korneliusz Osmenda
  */
 
+__attribute__((weak,noreturn))
 void __stack_chk_fail(void)
 {
 	asm("cli");
@@ -14,3 +15,4 @@ void __stack_chk_fail(void)
 		asm("nop");
 	}
 }
+

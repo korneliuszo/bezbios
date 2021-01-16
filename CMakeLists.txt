@@ -8,8 +8,8 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 add_compile_options(-Wall -Wextra -pedantic -Werror -g) 
 
 option(CONFIG_TGTPC "Target PC" ON)
+
 if(CONFIG_TGTPC)
-	include(platform_pc/Prologue.txt)
 	add_subdirectory(platform_pc)
 endif()
 
