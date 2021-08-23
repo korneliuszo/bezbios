@@ -23,7 +23,6 @@ extern char __bss_start;
 extern char __bss_end;
 
 void
-__attribute__((used))
 __attribute__((noreturn))
 __attribute__((section(".init")))
 _cstart(void);
@@ -73,7 +72,6 @@ extern void (*__fini_array_start []) (void) __attribute__((weak));
 extern void (*__fini_array_end []) (void) __attribute__((weak));
 
 void
-__attribute__((used))
 __attribute__((noreturn))
 __attribute__((section(".init")))
 _cstart(void) {

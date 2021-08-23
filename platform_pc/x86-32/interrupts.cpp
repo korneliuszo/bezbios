@@ -13,13 +13,15 @@ static ByteIO<0x21> PIC1_DAT;
 static ByteIO<0xA0> PIC2_CMD;
 static ByteIO<0xA1> PIC2_DAT;
 
-struct IDTDescr {
+struct __attribute__((packed)) IDTDescr {
    volatile unsigned short offset_1; // offset bits 0..15
    volatile unsigned short selector; // a code segment selector in GDT or LDT
    volatile unsigned char zero;      // unused, set to 0
    volatile unsigned char type_attr; // type and attributes, see below
    volatile unsigned short offset_2; // offset bits 16..31
 };
+
+static_assert(sizeof(IDTDescr) == 8, "Verifying size failed!");
 
 static struct IDTDescr idt[256] ={};
 
@@ -28,6 +30,8 @@ struct __attribute__((packed)) IDTSegment
 	unsigned short len;
 	struct IDTDescr *idt;
 };
+
+static_assert(sizeof(IDTSegment) == 6, "Verifying size failed!");
 
 static struct IDTSegment idt_seg = {256*sizeof(*idt)-1, idt};
 

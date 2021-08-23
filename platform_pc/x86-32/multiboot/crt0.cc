@@ -16,7 +16,6 @@ __attribute__((section(".init"))) _start(void);
 
 
 void
-__attribute__((used))
 __attribute__((naked))
 __attribute__((section(".init"))) _pstart(void);
 
@@ -34,6 +33,7 @@ typedef struct
     unsigned char base_high;
 } __attribute__((packed)) gdt_table_t;
 
+static_assert(sizeof(gdt_table_t) == 8, "Verifying size failed!");
 #define GDT_BASE_LOW(x) (x &0xFFFF)
 #define GDT_BASE_MID(x) ((x>>16) &0xFF)
 #define GDT_BASE_HIGH(x) ((x>>(16+8)) &0xFF)
@@ -69,15 +69,17 @@ gdt_table_t gdt_table[] =
 		}, //data descriptor
 };
 
-static
-const
-__attribute__((used))
-struct
+struct  __attribute__((packed)) Gdt_pointer
 {
 	unsigned short limit;
 	gdt_table_t * table;
-} __attribute__((packed)) gdt_pointer
-= {sizeof(gdt_table)-1,gdt_table};
+};
+
+static_assert(sizeof(Gdt_pointer) == 6, "Verifying size failed!");
+
+static
+const
+Gdt_pointer gdt_pointer = {sizeof(gdt_table)-1,gdt_table};
 
 void
 __attribute__((used))
@@ -93,11 +95,10 @@ __attribute__((section(".init"))) _start(void) {
 			"orb $1, %%al\n\t"      // set PE (Protection Enable) bit in CR0 (Control Register 0)
 			"mov %%eax, %%cr0" : : : "eax");
 #endif
-	asm volatile("jmp $0x08,$_pstart");
+	asm volatile("jmp $0x08,%0" :: "i" (_pstart));
 }
 
 void
-__attribute__((used))
 __attribute__((naked))
 __attribute__((section(".init"))) _pstart(void) {
 	asm volatile(
@@ -111,5 +112,5 @@ __attribute__((section(".init"))) _pstart(void) {
 	asm volatile("movl %0, %%esp" : : "i"(&__stack_end-1));
 	asm volatile("movl %0, %%ebp" : : "i"(&__stack_end-1));
 	asm volatile("push $0");
-	asm volatile("jmp _cstart");
+	asm volatile("jmp $0x08,%0" :: "i"(_cstart));
 }
