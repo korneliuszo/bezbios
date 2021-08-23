@@ -1,5 +1,5 @@
 
-option(CONFIG_CACHED_ASM "Use asm" ON)
+option(CONFIG_CACHED_ASM "Use asm" OFF)
 
 option(CONFIG_TGTMB "Target multiboot" ON)
 if(CONFIG_TGTMB)
