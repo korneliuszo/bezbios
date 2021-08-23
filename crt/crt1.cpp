@@ -21,6 +21,10 @@ extern "C" {
 
 extern char __bss_start;
 extern char __bss_end;
+extern char __sloram_copy;
+extern char __eloram_copy;
+extern char __loram_copy;
+
 
 void
 __attribute__((noreturn))
@@ -78,6 +82,16 @@ _cstart(void) {
 	for(volatile char * i = &__bss_start; i < &__bss_end; i++)
 		*i = 0x00;
 
+	long *pSrc, *pDest;
+
+    pSrc = (long*)&__loram_copy;
+    pDest = (long*)&__sloram_copy;
+
+    if (pSrc != pDest) {
+            for (; pDest < (long*)&__eloram_copy;) {
+                    *pDest++ = *pSrc++;
+            }
+    }
 
 	long i, count;
 

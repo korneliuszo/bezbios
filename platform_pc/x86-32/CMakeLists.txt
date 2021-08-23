@@ -48,3 +48,16 @@ target_include_directories(interrupts
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_link_libraries(interrupts sched_api crt)
+
+add_library(vm86
+	STATIC
+)
+
+if(CONFIG_CACHED_ASM)
+enable_language(ASM)
+target_sources(vm86 PRIVATE vm86.S)
+else()
+target_sources(vm86 PRIVATE vm86.cpp)
+endif()
+
+target_link_libraries(vm86 crt)

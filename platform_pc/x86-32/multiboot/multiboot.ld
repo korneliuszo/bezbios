@@ -8,6 +8,7 @@ ENTRY(_start)
 
 MEMORY
 {
+    LO_RAM (wx) : ORIGIN = 40k, LENGTH = 600k
     RAM (wx) : ORIGIN = 1M, LENGTH = 1M
 }
 
@@ -73,6 +74,29 @@ SECTIONS
 	PROVIDE (__stack_end = .) ;
 		
 	} > RAM
+
+	. = ORIGIN(LO_RAM);
+
+	.loram_scratch BLOCK(64K) (NOLOAD) : ALIGN(64K)
+	{
+		*(.loram_scratch)
+	} > LO_RAM AT> RAM
+	
+	.loram_code BLOCK(64K) : ALIGN(64K)
+	{
+		. = ALIGN(4);
+		__sloram_copy = .;
+		*(.loram_code)
+		. = ALIGN(4);
+		__eloram_copy = .;
+	} > LO_RAM AT> RAM
+	__loram_copy = LOADADDR(.loram_code);
+
+
+	.loram_stack BLOCK(64K) (NOLOAD): ALIGN(64K)
+	{
+		*(.loram_stack)
+	} > LO_RAM AT> RAM
 
 	.debug_gdb_scripts 0 (INFO) :
 	{
