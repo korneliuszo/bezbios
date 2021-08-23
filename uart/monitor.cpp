@@ -12,6 +12,15 @@
 
 static unsigned char getmem_buff[512];
 
+static
+long strlen(const unsigned char* start) {
+   // NB: no nullptr checking!
+   const unsigned char* end = start;
+   for( ; *end != '\0'; ++end)
+      ;
+   return end - start;
+}
+
 void tlay2_monitor(Tlay2 & tlay2)
 {
 	switch(tlay2.payload[0])
@@ -94,6 +103,15 @@ void tlay2_monitor(Tlay2 & tlay2)
 			case MonitorFunctions::Type::TERMINATOR:
 				break;
 			}
+		}
+		break;
+	case 0x08:
+		if(tlay2.len ==5)
+		{
+			unsigned char * addr =
+					(unsigned char*) get_long_le(&tlay2.payload[1]);
+
+			tlay2.reply(addr,strlen(addr));
 		}
 		break;
 	}

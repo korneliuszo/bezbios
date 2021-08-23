@@ -11,6 +11,7 @@
 #include <uart/tlay2.hpp>
 #include <display/bezbios_display_api.h>
 #include <uart/monitor.hpp>
+#include <uart/vm86_monitor.hpp>
 #include <uart/endianbuff.h>
 #include <vm86.hpp>
 
@@ -74,13 +75,6 @@ void third()
 	{
 		bezbios_delay_ms(1000);
 		tlay2_uart.dbgout(leters);
-		Vmm86Regs in;
-		Vmm86Regs out = {};
-		Vmm86SegmentRegisters seg;
-		in.ax = (0xE << 8) | 'B';
-		in.bx = 0x01;
-		in.cx = 0x1;
-		callx86int(0x10,&in,&out,&seg);
 	}
 
  }
@@ -91,6 +85,7 @@ static BEZBIOS_INIT_PIT delay_implementation;
 
 struct Tlay2Payloads tlay2_payloads[] = {
 		{1,tlay2_monitor},
+		{2,tlay2_v86_monitor},
 		{0,nullptr} // terminator
 };
 

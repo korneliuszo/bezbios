@@ -11,3 +11,6 @@ target_include_directories(tlay2 PUBLIC ${PROJECT_SOURCE_DIR})
 
 add_library(tlay2_monitor STATIC monitor.cpp)
 target_link_libraries(tlay2_monitor tlay2)
+
+add_library(tlay2_vm86_monitor STATIC vm86_monitor.cpp)
+target_link_libraries(tlay2_vm86_monitor tlay2 vm86)

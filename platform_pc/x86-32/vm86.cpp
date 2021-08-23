@@ -21,11 +21,6 @@ static BezBios::Sched::Mutex vmm86_mutex;
 __attribute__((section(".loram_stack")))
 static unsigned char vm86_stack[4096];
 
-struct LONGADDR
-{
-	unsigned long segment;
-	unsigned long offset;
-};
 
 LONGADDR vmm86_to_segment(void * ptr)
 {

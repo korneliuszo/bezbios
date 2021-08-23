@@ -30,4 +30,12 @@ static inline void put_short_le(unsigned char *buff, unsigned short val)
 	buff[1] = val>>8;
 }
 
+static inline void put_long_le(unsigned char *buff, unsigned long val)
+{
+	buff[0] = val;
+	buff[1] = val>>8;
+	buff[2] = val>>16;
+	buff[3] = val>>24;
+}
+
 #endif /* UART_ENDIANBUFF_H_ */

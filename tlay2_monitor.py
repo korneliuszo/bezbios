@@ -31,3 +31,5 @@ class tlay2_monitor():
         return struct.unpack("<H",ret)[0]
     def runfunc(self,id,params=b''):
         return self.conn.msg(struct.pack("<BB",7,id)+params)
+    def readstring(self,addr):
+        return self.conn.msg(struct.pack("<BL",8,addr))

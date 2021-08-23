@@ -1,5 +1,5 @@
 project(bezbios)
 
 add_executable(bezbios main.cpp)
-target_link_libraries(bezbios crt sched interrupts uart tlay2_uart tlay2_monitor ega vm86)
+target_link_libraries(bezbios crt sched interrupts uart tlay2_uart tlay2_monitor ega tlay2_vm86_monitor)
 package_floppy(bezbios)
