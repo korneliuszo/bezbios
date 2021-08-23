@@ -12,6 +12,7 @@
 #include <display/bezbios_display_api.h>
 #include <uart/monitor.hpp>
 #include <uart/endianbuff.h>
+#include <vm86.hpp>
 
 /*class Test
 {
@@ -73,6 +74,13 @@ void third()
 	{
 		bezbios_delay_ms(1000);
 		tlay2_uart.dbgout(leters);
+		Vmm86Regs in;
+		Vmm86Regs out = {};
+		Vmm86SegmentRegisters seg;
+		in.ax = (0xE << 8) | 'B';
+		in.bx = 0x01;
+		in.cx = 0x1;
+		callx86int(0x10,&in,&out,&seg);
 	}
 
  }
