@@ -33,6 +33,14 @@ add_library(interrupts
 		interrupts.cpp
 		timerPIT.cpp
 )
+
+if(CONFIG_CACHED_ASM)
+enable_language(ASM)
+target_sources(interrupts PRIVATE gpf.S)
+else()
+target_sources(interrupts PRIVATE gpf.cpp)
+endif()
+
 set_property(TARGET interrupts
              PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
 target_include_directories(interrupts

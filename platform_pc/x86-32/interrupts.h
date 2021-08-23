@@ -30,6 +30,8 @@ public:
 	}
 };
 
+void gpf (struct interrupt_frame *frame);
+
 #ifdef __cplusplus
 }
 #endif

@@ -103,6 +103,7 @@ void bezbios_init_interrupts(void)
 	PIC2_DAT = 0xff;
 
 	_hwirqloop_init<0>::f();
+	bezbios_irq_idt(0x0D,gpf);
 
 	asm volatile("lidt (%0) " :  : "r"(&idt_seg));
 	asm volatile("sti"); //now we can start interrupts
