@@ -32,6 +32,18 @@ static inline void outs(unsigned short port,unsigned short val)
 	asm volatile ("out %0, %1" : : "a"(val), "Nd"(port));
 }
 
+static inline unsigned long inl(unsigned short port)
+{
+	unsigned long ret;
+	asm volatile ("inl %1, %0" : "=a"(ret): "Nd"(port));
+	return ret;
+}
+
+static inline void outl(unsigned short port,unsigned long val)
+{
+	asm volatile ("outl %0, %1" : : "a"(val), "Nd"(port));
+}
+
 static inline void io_wait(unsigned char point)
 {
     asm volatile ( "outb %0, $0x80" : : "a"(point) );
@@ -75,6 +87,19 @@ static inline unsigned long cli()
 	asm volatile("cli");
 	return ret;
 }
+
+static inline unsigned long getflags()
+{
+	unsigned long ret;
+    asm volatile("# __raw_save_flags\n\t"
+             "pushf ; pop %0"
+             : "=rm" (ret)
+             : /* no input */
+             : "memory");
+	return ret;
+}
+
+
 static inline void sti(unsigned long prev)
 {
     asm volatile("# __raw_restore_flags\n\t"
