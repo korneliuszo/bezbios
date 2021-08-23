@@ -18,7 +18,7 @@ switchcontext_int(void * volatile *prev_s, void *next_s, void (*entry_s)(void *)
 			"push %4\n\t" // arg
 			"push %3\n\t" // return to NULL
 			"sti\n\t"
-			"jmp %2\n\t" // call from NULL
+			"jmp *%2\n\t" // call from NULL
 			: : "r" (prev_s), "r" (next_s), "ecx"(entry_s), "i"(nullptr), "r" (val_s)
 			: "esi","edi","ebp" : no_entry );
 no_entry:
@@ -35,7 +35,7 @@ switchcontext_exit(void * volatile *prev_s, void *next_s, void (*entry_s)(void *
 			"push %4\n\t" // arg
 			"push %3\n\t" // return to NULL
 			"sti\n\t"
-			"jmp %2\n\t" // call from NULL
+			"jmp *%2\n\t" // call from NULL
 			: : "r" (prev_s), "r" (next_s), "ecx"(entry_s), "i"(nullptr), "r" (val_s)
 			: "esi","edi","ebp" : no_entry );
 no_entry:
