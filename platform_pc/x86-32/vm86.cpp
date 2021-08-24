@@ -5,7 +5,7 @@
  *      Author: Korneliusz Osmenda
  */
 
-#include "multiboot/tss.h"
+#include "tss.h"
 #include "vm86.hpp"
 #include "sched/bezbios_sched_api.h"
 #include "io.h"

@@ -14,6 +14,7 @@ function(add_executable target_name)
 	_add_executable(${target_name} ${ARGN})
 	target_compile_options(${target_name} INTERFACE -march=i486 -O2 -m32 -mgeneral-regs-only -nostdinc -fno-pic)
 	target_sources(${target_name} PRIVATE ${SCHED_MAIN})
+	target_sources(${target_name} PRIVATE ${THISDIR}/multiboot_header.cpp)
 	target_link_options(${target_name} PUBLIC
 		-m32 -nostdlib -T ${THISDIR}/multiboot.ld -static
 		-Wl,-Map=$<TARGET_FILE:${target_name}>.map)
@@ -34,13 +35,3 @@ function(add_executable target_name)
 )
 	
 endfunction()
-
-add_library(crt0 STATIC)
-target_compile_options(crt0 PUBLIC -march=i486 -O2 -m32 -mgeneral-regs-only -nostdinc -fno-pic)
-
-if(CONFIG_CACHED_ASM)
-enable_language(ASM)
-target_sources(crt0 PRIVATE crt0.S)
-else()
-target_sources(crt0 PRIVATE crt0.cc)
-endif()

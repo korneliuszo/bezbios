@@ -6,6 +6,17 @@ if(CONFIG_TGTMB)
 	add_subdirectory(multiboot)
 endif()
 
+
+add_library(crt0 STATIC)
+target_compile_options(crt0 PUBLIC -march=i486 -O2 -m32 -mgeneral-regs-only -nostdinc -fno-pic)
+
+if(CONFIG_CACHED_ASM)
+enable_language(ASM)
+target_sources(crt0 PRIVATE crt0.S)
+else()
+target_sources(crt0 PRIVATE crt0.cc)
+endif()
+
 add_library(sched STATIC sched_low.cpp)
 
 if(CONFIG_CACHED_ASM)

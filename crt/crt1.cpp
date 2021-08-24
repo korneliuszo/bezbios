@@ -31,43 +31,9 @@ __attribute__((noreturn))
 __attribute__((section(".init")))
 _cstart(void);
 
-typedef struct {
-	unsigned long magic;
-	unsigned long flags;
-	unsigned long header_addr;
-	unsigned long load_addr;
-	unsigned long load_end_addr;
-	unsigned long bss_end_addr;
-	unsigned long entry_addr;
-	unsigned long mode_type;
-	unsigned long width;
-	unsigned long height;
-	unsigned long depth;
-
-
-}multiboot_t;
-
-extern multiboot_t Multiboot_header;
-
 void bezbios_main(void);
 
 }
-
-
-__attribute__((section(".multiboot")))
-multiboot_t Multiboot_header = {
-		0x1BADB002,
-		1,
-		0x100000000 - 0x1BADB002 - 1,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-};
 
 /* These magic symbols are provided by the linker.  */
 extern void (*__init_array_start []) (void) __attribute__((weak));
