@@ -105,13 +105,21 @@ void tlay2_monitor(Tlay2 & tlay2)
 			}
 		}
 		break;
-	case 0x08:
+	case 0x08: //strget
 		if(tlay2.len ==5)
 		{
 			unsigned char * addr =
 					(unsigned char*) get_long_le(&tlay2.payload[1]);
 
 			tlay2.reply(addr,strlen(addr));
+		}
+		break;
+	case 0x09: // call raw
+		if(tlay2.len ==5)
+		{
+			void (*addr)() =
+					(void(*)()) get_long_le(&tlay2.payload[1]);
+			addr();
 		}
 		break;
 	}
