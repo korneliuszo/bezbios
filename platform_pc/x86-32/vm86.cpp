@@ -22,12 +22,19 @@ __attribute__((section(".loram_stack")))
 static unsigned char vm86_stack[4096];
 
 
-LONGADDR vmm86_to_segment(void * ptr)
+LONGADDR vmm86_to_segment(void * ptr, bool codesection)
 {
 	LONGADDR ret;
-	ret.segment = ((unsigned long) ptr >> 4)&0xF000;
-	ret.offset = (unsigned long)ptr & 0xFFFF;
-
+	if(codesection)
+	{
+		ret.segment = ((unsigned long) ptr >> 4)&0xFFFF;
+		ret.offset = (unsigned long)ptr & 0x000F;
+	}
+	else
+	{
+		ret.segment = ((unsigned long) ptr >> 4)&0xF000;
+		ret.offset = (unsigned long)ptr & 0xFFFF;
+	}
 	return ret;
 }
 
@@ -340,7 +347,7 @@ void callx86int(unsigned char isr, const Vmm86Regs * in, Vmm86Regs * out, Vmm86S
 
 	VM86RUNPARAMS rparm;
 
-	rparm.code = vmm86_to_segment(vm86_isr);
+	rparm.code = vmm86_to_segment(vm86_isr,true);
 	rparm.stack = vmm86_to_segment(vm86_stack+sizeof(vm86_stack)-1);
 
 	unsigned long eflags = getflags();

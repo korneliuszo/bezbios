@@ -54,7 +54,7 @@ SECTIONS
 		*(.data*)
 	} > LO_RAM
  
- 	.loram_code BLOCK(64K) : ALIGN(64K)
+ 	.loram_code : ALIGN(16)
 	{
 		. = ALIGN(4);
 		__sloram_copy = .;
