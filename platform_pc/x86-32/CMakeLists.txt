@@ -6,6 +6,10 @@ if(CONFIG_TGTMB)
 	add_subdirectory(multiboot)
 endif()
 
+option(CONFIG_TGTRD "Target rawdisk" OFF)
+if(CONFIG_TGTRD)
+	add_subdirectory(rawdisk)
+endif()
 
 add_library(crt0 STATIC)
 target_compile_options(crt0 PUBLIC -march=i486 -O2 -m32 -mgeneral-regs-only -nostdinc -fno-pic)
