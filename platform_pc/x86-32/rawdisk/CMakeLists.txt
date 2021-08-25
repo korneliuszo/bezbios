@@ -22,18 +22,25 @@ function(add_executable target_name)
 		BYPRODUCTS
 			${target_name}.lss
         	${target_name}.stripped
-        	${target_name}.bin
     	COMMAND ${CMAKE_OBJDUMP} -h -S
     		$<TARGET_FILE:${target_name}> | c++filt > $<TARGET_FILE:${target_name}>.lss
     	COMMAND ${CMAKE_STRIP} -s $<TARGET_FILE:${target_name}>
         	-o $<TARGET_FILE:${target_name}>.stripped
-    	COMMAND ${CMAKE_OBJCOPY} -O binary -v
+
+ 	)
+ 	add_custom_target(
+			${target_name}.bin
+		DEPENDS
+			${target_name}
+		BYPRODUCTS
+			${target_name}.bin
+		COMMAND ${CMAKE_OBJCOPY} -O binary -v
  	   		-j .text
     		-j .rodata
     		-j .data
     		-j .loram_code
       		$<TARGET_FILE:${target_name}>  $<TARGET_FILE:${target_name}>.bin
- 	)
+	)
 	
 endfunction()
 
@@ -51,7 +58,7 @@ function(package_floppy target_name)
 		-m16 -nostdlib -static
 		-T ${THISDIR}/mbr.ld
 		-Wl,-Map=$<TARGET_FILE:${target_name}_mbr>.map)
-	add_dependencies(${target_name}_mbr ${target_name})
+	add_dependencies(${target_name}_mbr ${target_name}.bin)
 		set_target_properties(${target_name} PROPERTIES 
 		LINK_DEPENDS ${THISDIR}/mbr.ld)
 	add_custom_command(
