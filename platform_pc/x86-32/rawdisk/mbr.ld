@@ -18,6 +18,6 @@ SECTIONS
 	{
 		*(.text)
 		*(.text*)
-
+		*(.note.gnu.build-id)
 	} > LO_RAM
 }

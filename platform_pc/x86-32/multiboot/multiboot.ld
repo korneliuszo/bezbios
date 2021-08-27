@@ -25,6 +25,7 @@ SECTIONS
 	. = ALIGN(8);
  	KEEP(*(.multiboot))
      *(.lo_init)  /* Start here after reset.  */
+	. = ALIGN(8);
 
   	PROVIDE (__init_array_start = .);
   	KEEP (*(SORT(.init_array.*)))
@@ -42,6 +43,7 @@ SECTIONS
 		*(.text*)
     *(.fini)  /* Infinite loop after program termination.  */
     KEEP (*(.fini))
+    *(.note.gnu.build-id)
 	} > RAM
  
 	/* Read-only data. */

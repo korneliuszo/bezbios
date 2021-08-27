@@ -38,6 +38,7 @@ SECTIONS
 		*(.text*)
     *(.fini)  /* Infinite loop after program termination.  */
     KEEP (*(.fini))
+    *(.note.gnu.build-id)
 	} > LO_RAM
  
 	/* Read-only data. */

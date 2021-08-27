@@ -29,6 +29,7 @@ extern multiboot_t Multiboot_header;
 
 
 __attribute__((section(".multiboot")))
+__attribute__((used))
 multiboot_t Multiboot_header = {
 		0x1BADB002,
 		1,
