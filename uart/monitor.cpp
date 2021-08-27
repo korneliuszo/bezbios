@@ -122,5 +122,16 @@ void tlay2_monitor(Tlay2 & tlay2)
 			addr();
 		}
 		break;
+	case 0x0A: // reset
+		if(tlay2.len ==1)
+		{
+			static struct __attribute__((packed))
+			{
+				unsigned short len;
+				unsigned long addr;
+			} null_idtr = {0,0};
+			asm("xor %%eax, %%eax; lidt %0; int3" :: "m" (null_idtr));
+		}
+		break;
 	}
 }
