@@ -119,6 +119,7 @@ void tlay2_monitor(Tlay2 & tlay2)
 		{
 			void (*addr)() =
 					(void(*)()) get_long_le(&tlay2.payload[1]);
+			asm volatile("cli");
 			addr();
 		}
 		break;
@@ -130,6 +131,7 @@ void tlay2_monitor(Tlay2 & tlay2)
 				unsigned short len;
 				unsigned long addr;
 			} null_idtr = {0,0};
+			asm volatile("cli");
 			asm("xor %%eax, %%eax; lidt %0; int3" :: "m" (null_idtr));
 		}
 		break;
