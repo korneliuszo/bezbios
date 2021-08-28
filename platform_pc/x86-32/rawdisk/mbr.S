@@ -117,6 +117,4 @@ size =	. - _start
 
 
 	.byte	0x55, 0xAA		//2  byte boot signature
-code_start:
- .incbin xstr(IMAGE)
-code_end:
+

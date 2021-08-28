@@ -48,11 +48,23 @@ endfunction()
 function(package_floppy target_name)
 	get_property(THISDIR GLOBAL PROPERTY RDF)
 
-	_add_executable(${target_name}_mbr ${THISDIR}/mbr.S)
+	add_custom_target(
+			${target_name}.bin.o
+		DEPENDS
+			${target_name}.bin
+		BYPRODUCTS
+			${target_name}.bin.o
+		COMMAND
+			${CMAKE_OBJCOPY} -I binary -O elf32-i386
+   				--add-section .binary_section=$<TARGET_FILE:${target_name}>.bin
+   				$<TARGET_FILE:${target_name}>.bin
+ 				$<TARGET_FILE:${target_name}>.bin.o
+	)
+
+	_add_executable(${target_name}_mbr ${THISDIR}/mbr.S ${target_name}.bin.o)
 	target_compile_options(${target_name}_mbr PRIVATE 
 		-march=i486 -O2 -m16 -mgeneral-regs-only 
 		-nostdinc -fno-pic -x assembler-with-cpp
-		-D IMAGE=$<TARGET_FILE:${target_name}>.bin
 	)
 	target_link_options(${target_name}_mbr PUBLIC
 		-m16 -nostdlib -static
