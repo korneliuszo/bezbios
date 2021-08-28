@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import vesa_low
 
 m=vesa_low.vesa()
