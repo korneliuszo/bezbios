@@ -34,6 +34,6 @@ class tlay2_monitor():
     def readstring(self,addr):
         return self.conn.msg(struct.pack("<BL",8,addr))
     def callraw(self,addr):
-        return self.conn.msg(struct.pack("<BL",9,addr))
+        return self.conn.msgout(struct.pack("<BL",9,addr))
     def reset(self):
-        return self.conn.msg(struct.pack("<B",0xA))
+        return self.conn.msgout(struct.pack("<B",0xA))
