@@ -8,21 +8,6 @@
 extern "C" {
 
 #include "tss.h"
-
-extern int __stack_end;
-
-void
-__attribute__((used))
-__attribute__((naked))
-__attribute__((section(".init"))) _start(void);
-
-
-void
-__attribute__((naked))
-__attribute__((section(".init"))) _pstart(void);
-
-extern void _cstart(void);
-
 }
 
 typedef struct
@@ -95,30 +80,13 @@ struct  __attribute__((packed)) Gdt_pointer
 
 static_assert(sizeof(Gdt_pointer) == 6, "Verifying size failed!");
 
-static
-const
+extern "C"
+{
 Gdt_pointer gdt_pointer = {sizeof(gdt_table)-1,gdt_table};
-
-void
-__attribute__((used))
-__attribute__((naked))
-__attribute__((section(".lo_init"))) _start(void) {
-	asm volatile("mov $0xff, %%al\n\t"
-		"outb %%al, $0xa1\n\t"
-		"outb %%al, $0x21":::"al"); // Disable interrupts as we change gdt
-	asm volatile("lgdt (%0) " :  : "r"(&gdt_pointer));
-#ifdef CONFIG_FROM_REAL_MODE
-	asm (
-		"mov %%cr0, %%eax\n\t"
-			"orb $1, %%al\n\t"      // set PE (Protection Enable) bit in CR0 (Control Register 0)
-			"mov %%eax, %%cr0" : : : "eax");
-#endif
-	asm volatile("jmp $0x08,%0" :: "i" (_pstart));
-}
 
 __attribute__((cdecl))
 __attribute__((section(".init")))
-static void tss_init(void)
+void tss_init(void)
 {
 	tss_io.t.io_base = (DWORD)(&(tss_io.io_map)) - (DWORD)(&(tss_io));
     for (int i = 0; i < 2047; i++) tss_io.io_map[i] = 0;
@@ -132,21 +100,4 @@ static void tss_init(void)
     asm volatile("lgdt (%0) " :  : "r"(&gdt_pointer));
 	asm("ltr %w0" : : "r"(0x18));
 }
-
-void
-__attribute__((naked))
-__attribute__((section(".init"))) _pstart(void) {
-	asm volatile(
-			"movw $0x10, %%ax\n\t"
-			"movw %%ax, %%ds\n\t"
-			"movw %%ax, %%es\n\t"
-			"movw %%ax, %%fs\n\t"
-			"movw %%ax, %%gs\n\t"
-			"movw %%ax, %%ss\n\t"
-			: : : "ax");
-	asm volatile("movl %0, %%esp" : : "i"(&__stack_end-1));
-	asm volatile("movl %0, %%ebp" : : "i"(&__stack_end-1));
-	asm volatile("push $0");
-	asm volatile("call %P0" :: "i"(tss_init));
-	asm volatile("jmp $0x08,%0" :: "i"(_cstart));
 }
