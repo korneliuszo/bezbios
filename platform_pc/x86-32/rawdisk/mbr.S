@@ -91,7 +91,6 @@ AddEnd:
 	orb $1, %al      // set PE (Protection Enable) bit in CR0 (Control Register 0)
 	mov %eax, %cr0
 
-	sti
 	jmp $0x08,$0x7E00
 
 gdt_ptr:
