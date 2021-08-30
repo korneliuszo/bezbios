@@ -18,9 +18,9 @@ SECTIONS
 	{
 		*(.text)
 		*(.text*)
-		*(.note.gnu.build-id)
 		PROVIDE(code_start = .);
 		KEEP(*(.binary_section))
 		PROVIDE(code_end = .);
+		*(.note.gnu.build-id)
 	} > LO_RAM
 }
