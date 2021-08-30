@@ -55,7 +55,7 @@ function(package_floppy target_name)
 		BYPRODUCTS
 			${target_name}.bin.o
 		COMMAND
-			${CMAKE_OBJCOPY} -I binary -O elf32-i386
+			${CMAKE_OBJCOPY} -I binary -O elf32-i386 -B i386
    				--add-section .binary_section=$<TARGET_FILE:${target_name}>.bin
    				$<TARGET_FILE:${target_name}>.bin
  				$<TARGET_FILE:${target_name}>.bin.o
