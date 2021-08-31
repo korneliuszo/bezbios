@@ -97,7 +97,18 @@ void tss_init(void)
     gdt_table[3].base_middle = GDT_BASE_MID((unsigned long)&tss_io.t);
     gdt_table[3].base_high = GDT_BASE_HIGH((unsigned long)&tss_io.t);
     gdt_table[3].access |= 1<<7; //now present
-    asm volatile("lgdt (%0) " :  : "r"(&gdt_pointer));
-	asm("ltr %w0" : : "r"(0x18));
+    asm volatile("lgdt %P0 " :  : "i"(&gdt_pointer));
+//	asm volatile("ltr %w0" : : "r"(0x18));
 }
+}
+
+void tss_clear_busy(void)
+{
+	asm volatile("cli");
+	gdt_table[3].access &= 0xfd;
+    asm volatile("lgdt %P0 " :  : "i"(&gdt_pointer));
+    asm volatile(
+    		"jmp $0x08,$tss_clear_jmp\n\t"
+    		"tss_clear_jmp:");
+    asm volatile("sti");
 }

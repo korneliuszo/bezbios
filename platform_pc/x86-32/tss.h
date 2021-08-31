@@ -62,4 +62,8 @@ typedef struct {
 
 extern TSS_io tss_io;
 
+extern "C" {
+void tss_clear_busy(void);
+}
+
 #endif /* PLATFORM_PC_X86_32_TSS_H_ */

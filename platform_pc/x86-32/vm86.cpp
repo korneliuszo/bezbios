@@ -261,10 +261,14 @@ static void callx86_nomut(const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentReg
 	vmm86_run = *run;
 
     asm(
+    		"cli\n\t"
     		"movl %%esp, (%P[vmm86_sp])\n\t"
 
     		"movl %%esp, (%P[tsp])\n\t"
     		"movw %%ss, (%P[tss])\n\t"
+
+    		"mov $0x18, %%eax\n\t"
+    		"ltr %%ax\n\t"
 
     		"pushfl\n\t" // NT flag should be disabled
     		".cfi_adjust_cfa_offset 4\n\t"
@@ -338,6 +342,7 @@ static void callx86_nomut(const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentReg
 		[tss] "i" (&tss_io.t.ss0),
 		[vmm86_sp] "i"(&vmm86_sp)
 		:	"eax","ebx","ecx","edx","esi","edi","ebp");
+    tss_clear_busy();
 }
 
 void callx86int(unsigned char isr, const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentRegisters *seg)
