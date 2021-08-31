@@ -87,7 +87,7 @@ struct __attribute__((packed)) VM86_stack : LOSTACK{
 	unsigned long gs;
 };
 
-static_assert(sizeof(VM86_stack<User_stack<Gpf_stack>>) == 68, "Verifying size failed!");
+static_assert(sizeof(VM86_stack<User_stack<Error_stack>>) == 84, "Verifying size failed!");
 
 
 static Vmm86Regs * vmm86_return;
@@ -96,14 +96,16 @@ static constexpr unsigned long PUSH_MASK = ~(1<<17 | 1<<16); //VM RF
 static constexpr unsigned long POP_MASK = ~(1<<17 | 1<<16 | 3<<12 | 1<<9); //VM RF IOPL IF
 static constexpr unsigned long POP_SET = (1<<17 | 0<<12 | 1<<9); //VM IOPL = 0 IF
 
-bool vm86_handle_gpf(Gpf_stack *frame)
+bool vm86_handle_gpf(Error_stack *frame)
 {
-	VM86_stack<User_stack<Gpf_stack>> *stack = (VM86_stack<User_stack<Gpf_stack>>*)frame;
+	VM86_stack<User_stack<Error_stack>> *stack = (VM86_stack<User_stack<Error_stack>>*)frame;
 	VM86RegPtr ip(&stack->cs,&stack->eip);
 	VM86RegPtr ss(&stack->ss,&stack->esp);
     unsigned char i_byte = ip.popC<unsigned char>();
     if (i_byte == 0x67) //ADDRESS_SIZE_PREFIX
+    {
     	i_byte = ip.popC<unsigned char>();
+    }
     switch(i_byte)
     {
     case 0xf4: //hlt

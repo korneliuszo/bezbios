@@ -36,7 +36,7 @@ struct LONGADDR
 };
 
 LONGADDR vmm86_to_segment(void * ptr, bool codesection = false);
-bool vm86_handle_gpf(Gpf_stack *frame);
+bool vm86_handle_gpf(Error_stack *frame);
 void callx86int(unsigned char isr, const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentRegisters *seg);
 
 

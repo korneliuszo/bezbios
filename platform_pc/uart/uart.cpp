@@ -39,8 +39,7 @@ BezBios::Sched::ConditionVariable rx_cv;
 BezBios::Sched::ConditionVariable tx_cv;
 
 template<>
-__attribute__((interrupt))
-void bezbios_imp_hw_req<INT>::f(struct interrupt_frame *)
+void bezbios_imp_hw_req<INT>::f(Isr_stack *)
 {
 	unsigned char IIR_cached = IIR;
 	if((IIR_cached & 0x1))

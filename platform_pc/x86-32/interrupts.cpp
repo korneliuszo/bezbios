@@ -35,9 +35,10 @@ static_assert(sizeof(IDTSegment) == 6, "Verifying size failed!");
 
 static struct IDTSegment idt_seg = {256*sizeof(*idt)-1, idt};
 
-void bezbios_irq_idt(unsigned char irqn,void (*irqfn)(struct interrupt_frame *), unsigned char dpl, bool trap)
+template<typename STACK, void CFUN(STACK *)>
+void bezbios_irq_idt(unsigned char irqn,ISR<STACK,CFUN> *irq, unsigned char dpl, bool trap)
 {
-	if(irqfn == nullptr)
+	if(irq == nullptr)
 	{
 		idt[irqn].type_attr = 0;
 		idt[irqn].selector = 0;
@@ -47,19 +48,11 @@ void bezbios_irq_idt(unsigned char irqn,void (*irqfn)(struct interrupt_frame *),
 	else
 	{
 		idt[irqn].selector = 0x08; // see GDT table
-		idt[irqn].offset_1 = ((unsigned long)irqfn)&0xffff;
-		idt[irqn].offset_2 = ((unsigned long)irqfn)>>16;
+		idt[irqn].offset_1 = ((unsigned long)&irq->fn)&0xffff;
+		idt[irqn].offset_2 = ((unsigned long)&irq->fn)>>16;
 		idt[irqn].type_attr = 0x80 | dpl << 5 | (trap?0xf:0xe);
 	}
 }
-
-template<unsigned char IRQ>
-__attribute__((weak))
-__attribute__((interrupt))
-void bezbios_imp_hw_req<IRQ>::f(struct interrupt_frame *)
-    {
-    	bezbios_int_ack(IRQ); //eat spurious interrupts
-    }
 
 void bezbios_int_ack(unsigned char IRQ)
 {
@@ -74,7 +67,8 @@ public:
     static inline void f()
     {
     	unsigned char irq_offset=(I<8)?0x20:(0x28-8);
-    	bezbios_irq_idt(I+irq_offset,bezbios_imp_hw_req<I>::f);
+    	ISR<Isr_stack,bezbios_imp_hw_req<I>::f> irq;
+    	bezbios_irq_idt(I+irq_offset,&irq);
         _hwirqloop_init<I+1>::f();
     }
 };
@@ -103,7 +97,8 @@ void bezbios_init_interrupts(void)
 	PIC2_DAT = 0xff;
 
 	_hwirqloop_init<0>::f();
-	bezbios_irq_idt(0x0D,gpf);
+	static ISR<Error_stack,gpfC> gpf_isr;
+	bezbios_irq_idt(0x0D,&gpf_isr);
 
 	asm volatile("lidt (%0) " :  : "r"(&idt_seg));
 	asm volatile("sti"); //now we can start interrupts
