@@ -1,0 +1,10 @@
+#!/bin/bash
+set -x
+
+socat pty,link=tlay2.pty_l,raw pty,link=tlay2.pty,raw &
+SOCAT_PID=$!
+sleep 1
+./tlay2_server.py tlay2.pty_l &
+QEMU_PID=$!
+bochs -f bochs.rc -q
+kill $QEMU_PID $SOCAT_PID
