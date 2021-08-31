@@ -65,7 +65,7 @@ target_include_directories(interrupts
 	INTERFACE
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(interrupts sched_api crt)
+target_link_libraries(interrupts sched_api crt uart_api crc8)
 
 add_library(vm86
 	STATIC

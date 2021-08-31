@@ -25,6 +25,15 @@ gpfC (Error_stack *frame)
 			return;
 	//gpf not handled
 	asm("cli");
+	{
+		DbgOut<UartBlocking> sender;
+		sender.str("OOPS!! unhandled GPF AT").hex(frame->eip).end();
+		unsigned long * stack = (unsigned long*)frame;
+		for(int i=0;i<32;i++)
+		{
+			sender.hex(i).str(" ").hex(stack[i]).end();
+		}
+	}
 	while(1){
 		asm("hlt");
 	}
