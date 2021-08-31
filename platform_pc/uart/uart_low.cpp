@@ -18,6 +18,7 @@ void bezbios_serial_bootup_init() {
    outb(PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
    outb(PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
    //outb(PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
+   bezbios_low_write_serial('\n');
 }
 
 void bezbios_low_write_serial(char a) {
