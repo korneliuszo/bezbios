@@ -80,6 +80,11 @@ AddEnd:
 	mov %ax, %es
 	jge LoopRead
 
+	mov $0x3F2, %dx
+wait_spin:
+	inb %dx, %al
+	and $0x30 , %al
+	jne wait_spin
 
 	mov     $0x2401, %ax                //--- A20-Gate Activate ---
 	int     $0x15
