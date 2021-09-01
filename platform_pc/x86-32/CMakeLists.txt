@@ -59,8 +59,6 @@ else()
 target_sources(interrupts PRIVATE gpf.cpp)
 endif()
 
-set_property(TARGET interrupts
-             PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
 target_include_directories(interrupts
 	INTERFACE
 		${CMAKE_CURRENT_SOURCE_DIR}

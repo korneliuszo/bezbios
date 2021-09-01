@@ -42,8 +42,6 @@ extern void (*__fini_array_start []) (void) __attribute__((weak));
 extern void (*__fini_array_end []) (void) __attribute__((weak));
 
 void
-__attribute__((noreturn))
-__attribute__((section(".init")))
 _cstart(void) {
 	for(volatile char * i = &__bss_start; i < &__bss_end; i++)
 		*i = 0x00;

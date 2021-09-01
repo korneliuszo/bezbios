@@ -28,4 +28,5 @@ _pstart:
 	push $0
 .extern tss_init
 	call tss_init
+.extern _cstart
 	jmp $0x08,$_cstart

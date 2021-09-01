@@ -6,6 +6,7 @@
  */
 
 __attribute__((weak,noreturn))
+__attribute__((noinline, used))
 void __stack_chk_fail(void)
 {
 	asm("cli");

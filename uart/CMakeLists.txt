@@ -3,8 +3,6 @@ target_include_directories(uart_api INTERFACE ${PROJECT_SOURCE_DIR})
 
 add_library(crc8 STATIC crc8.c)
 target_include_directories(crc8 PUBLIC ${PROJECT_SOURCE_DIR})
-set_property(TARGET crc8
-             PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
 target_link_libraries(crc8 crt0)
 
 add_library(tlay2 STATIC tlay2.cpp)
