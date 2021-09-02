@@ -83,7 +83,10 @@ void bezbios_imp_hw_req<INT>::f(Isr_stack *)
 					  bezbios_enable_irq(INT);
 				  }
 				  else
-					  break;
+				  {
+						bezbios_int_ack(INT);
+						return;
+				  }
 			  }
 			  fifo_put(&serial_rx,RBR);
 		  }
