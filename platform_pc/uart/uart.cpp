@@ -39,6 +39,7 @@ BezBios::Sched::ConditionVariable rx_cv;
 BezBios::Sched::ConditionVariable tx_cv;
 
 template<>
+__attribute__((cdecl))
 void bezbios_imp_hw_req<INT>::f(Isr_stack *)
 {
 	unsigned char IIR_cached = IIR;

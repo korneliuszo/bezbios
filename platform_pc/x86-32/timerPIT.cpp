@@ -36,6 +36,7 @@ long bezbios_get_ms()
 }
 
 template<>
+__attribute__((cdecl))
 void bezbios_imp_hw_req<0>::f(Isr_stack *)
 {
 	systick_msf +=systick_add;

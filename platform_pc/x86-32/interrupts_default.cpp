@@ -9,6 +9,7 @@
 
 template<unsigned char IRQ>
 __attribute__((weak))
+__attribute__((cdecl))
 void bezbios_imp_hw_req<IRQ>::f(Isr_stack *)
     {
     	bezbios_int_ack(IRQ); //eat spurious interrupts
