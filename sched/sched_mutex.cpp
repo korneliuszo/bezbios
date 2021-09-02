@@ -31,7 +31,7 @@ void BezBios::Sched::Mutex::release() {
 		if(!wait_tid && waiting.get(it))
 			wait_tid = it;
 	}
-	for(int it=0;it < tid;it++)
+	for(int it=1;it < tid;it++)
 	{
 		if(!wait_tid && waiting.get(it))
 			wait_tid = it;

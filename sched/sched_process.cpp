@@ -27,7 +27,7 @@ int rr_next_task()
 		if(!wait_tid && threads_wfi.get(it))
 			wait_tid = it;
 	}
-	for(int it=0;it < tid+1;it++)
+	for(int it=1;it < tid+1;it++)
 	{
 		if(!wait_tid && threads_wfi.get(it))
 			wait_tid = it;
