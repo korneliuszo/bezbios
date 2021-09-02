@@ -106,7 +106,7 @@ static inline void sti(unsigned long prev)
              "push %0 ; popf"
              : /* no output */
              : "rm" (prev)
-             : "memory");
+             : "memory","cc");
 }
 
 
