@@ -72,9 +72,18 @@ void bezbios_imp_hw_req<INT>::f(Isr_stack *)
 	case 0x0C: //timeout
 		  while (LSR & 0x01)
 		  {
-			  if(fifo_check(&serial_rx) == FIFO_SIZE-1)
+			  while(fifo_check(&serial_rx) == FIFO_SIZE-1)
+			  {
 				  if(rx_cv.notify_all())
+				  {
+					  bezbios_disable_irq(INT);
+					  bezbios_int_ack(INT);
 					  bezbios_sched_free_cpu(1);
+					  bezbios_enable_irq(INT);
+				  }
+				  else
+					  break;
+			  }
 			  fifo_put(&serial_rx,RBR);
 		  }
 		  rx_cv.notify_all();
