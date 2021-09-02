@@ -43,6 +43,7 @@ __attribute__((cdecl))
 void bezbios_imp_hw_req<INT>::f(Isr_stack *)
 {
 	unsigned char IIR_cached = IIR;
+
 	if((IIR_cached & 0x1))
 	{
 		bezbios_int_ack(INT);
@@ -111,8 +112,15 @@ void bezbios_serial_send(unsigned char byte) {
 	while(true)
 	{
 		ENTER_ATOMIC();
+
 		bool brk = fifo_put(&serial_tx,byte);
 		IER |= 0x02;
+		if (LSR & 0x20)
+		{
+			unsigned char c=0;
+			fifo_get(&serial_tx,&c);
+			THR = c;
+		}
 		if (brk)
 		{
 			EXIT_ATOMIC();
