@@ -118,7 +118,6 @@ void bezbios_serial_send(unsigned char byte) {
 			EXIT_ATOMIC();
 			break;
 		}
-		EXIT_ATOMIC();
 		tx_cv.wait();
 	}
 }
@@ -132,7 +131,6 @@ unsigned char bezbios_serial_recv() {
 			EXIT_ATOMIC();
 			break;
 		}
-		EXIT_ATOMIC();
 		rx_cv.wait();
 	}
 	return c;
