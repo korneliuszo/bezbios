@@ -23,6 +23,7 @@ void bezbios_sched_destroy_task(int tid);
 
 void bezbios_sched_task_ready(int tid, bool is_ready);
 int bezbios_sched_free_cpu(bool reschedule);
+int rr_next_task();
 void bezbios_sched_exit(int tid);
 
 #ifdef __cplusplus

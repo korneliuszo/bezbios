@@ -6,6 +6,7 @@
  */
 
 #include <sched/bezbios_sched_api.h>
+#include "io.h"
 
 extern "C" {
 
@@ -21,9 +22,22 @@ void bezbios_main()
 
 	while(1)
 	{
-		while(bezbios_sched_free_cpu(0));
-		asm("hlt");
-		asm("nop");
+		int wait_tid;
+		do {
+			asm("cli");
+			wait_tid = rr_next_task();
+			if (wait_tid != 0)
+			{
+				bezbios_sched_task_ready(wait_tid, 0);
+				bezbios_sched_switch_context(wait_tid);
+			}
+		} while(wait_tid != 0);
+		{
+			asm(
+				"sti\n\t"
+				"hlt\n\t"
+				"nop");
+		}
 	}
 
 	return;

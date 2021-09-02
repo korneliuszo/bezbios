@@ -17,7 +17,7 @@ void bezbios_sched_task_ready(int tid, bool is_ready)
 		threads_wfi.set(tid, is_ready);
 }
 
-static int rr_next_task()
+int rr_next_task()
 {
 	int tid = bezbios_sched_get_tid();
 	int wait_tid = 0; // falltrough to bezbios_main task
