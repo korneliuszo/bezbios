@@ -26,7 +26,7 @@ const char thread_py[] =
 
 __attribute__((externally_visible))
 volatile Threads_sp global_threads_sp[CONFIG_MAX_THREADS] = {{(void *)1,nullptr,nullptr},};
-static int current_tid;
+static volatile int current_tid;
 
 void bezbios_sched_switch_context(int nexttask)
 {
