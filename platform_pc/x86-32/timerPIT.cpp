@@ -72,7 +72,7 @@ void bezbios_delay_ms(int ms)
 {
 	int tid = bezbios_sched_get_tid();
 	DelayList* ptr=&delay_tbl[tid];
-	ENTER_ATOMIC();
+	cli();
 	long now = bezbios_get_ms();
 	long timeout = now + ms;
 	ptr->timeout = timeout;
@@ -100,6 +100,5 @@ void bezbios_delay_ms(int ms)
 		ptr->next = newhead;
 		oldhead->next = ptr;
 	}
-	EXIT_ATOMIC();
 	bezbios_sched_free_cpu(0);
 }
