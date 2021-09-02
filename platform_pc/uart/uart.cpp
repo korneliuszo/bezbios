@@ -66,8 +66,7 @@ void bezbios_imp_hw_req<INT>::f(Isr_stack *)
 				  break;
 			  }
 		  }
-		  if(tx_cv.notify_all())
-			  bezbios_sched_free_cpu(1);
+		  tx_cv.notify_all();
 		  break;
 	case 0x04: //recv threshold
 	case 0x0C: //timeout
@@ -78,8 +77,7 @@ void bezbios_imp_hw_req<INT>::f(Isr_stack *)
 					  bezbios_sched_free_cpu(1);
 			  fifo_put(&serial_rx,RBR);
 		  }
-		  if(rx_cv.notify_all())
-			  bezbios_sched_free_cpu(1);
+		  rx_cv.notify_all();
 		  break;
 	}
 	IIR_cached = IIR;
