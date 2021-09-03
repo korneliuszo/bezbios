@@ -80,12 +80,13 @@ void bezbios_imp_hw_req<INT>::f(Isr_stack *)
 					  bezbios_disable_irq(INT);
 					  bezbios_int_ack(INT);
 					  bezbios_sched_free_cpu(1);
+					  cli();
 					  bezbios_enable_irq(INT);
 				  }
 				  else
 				  {
-						bezbios_int_ack(INT);
-						return;
+					  bezbios_int_ack(INT);
+					  return;
 				  }
 			  }
 			  fifo_put(&serial_rx,RBR);
@@ -104,7 +105,7 @@ void bezbios_serial_init() {
 	DLL = 0x03;    // Set divisor to 3 (lo byte) 38400 baud
 	DLH = 0x00;    //                  (hi byte)
 	LCR = 0x03;    // 8 bits, no parity, one stop bit
-	FCR = 0xC7;    // Enable FIFO, clear them, with 14-byte threshold
+	FCR = 0x07;    // Enable FIFO, clear them, with 1-byte threshold
 	MCR = 0x08;    // route interrupt
 	IER = 0x01;    // receive IRQ enabled
 	bezbios_enable_irq(INT);
