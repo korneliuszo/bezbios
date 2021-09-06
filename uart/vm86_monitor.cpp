@@ -29,35 +29,35 @@ void tlay2_v86_monitor(Tlay2 & tlay2)
 		break;
 	}
 	case 0x01:
-		if (tlay2.len == 24)
+		if (tlay2.len == 46)
 		{
 			Vmm86Regs in;
 			Vmm86Regs out;
 			Vmm86SegmentRegisters seg;
 			unsigned char irq;
 			irq =tlay2.payload[1];
-			in.ax = get_short_le(&tlay2.payload[2]);
-			in.bx = get_short_le(&tlay2.payload[4]);
-			in.cx = get_short_le(&tlay2.payload[6]);
-			in.dx = get_short_le(&tlay2.payload[8]);
-			in.si = get_short_le(&tlay2.payload[10]);
-			in.di = get_short_le(&tlay2.payload[12]);
-			in.bp = get_short_le(&tlay2.payload[14]);
-			seg.ds = get_short_le(&tlay2.payload[16]);
-			seg.es = get_short_le(&tlay2.payload[18]);
-			seg.fs = get_short_le(&tlay2.payload[20]);
-			seg.gs = get_short_le(&tlay2.payload[22]);
+			in.ax = get_long_le(&tlay2.payload[2]);
+			in.bx = get_long_le(&tlay2.payload[6]);
+			in.cx = get_long_le(&tlay2.payload[10]);
+			in.dx = get_long_le(&tlay2.payload[14]);
+			in.si = get_long_le(&tlay2.payload[18]);
+			in.di = get_long_le(&tlay2.payload[22]);
+			in.bp = get_long_le(&tlay2.payload[26]);
+			seg.ds = get_long_le(&tlay2.payload[30]);
+			seg.es = get_long_le(&tlay2.payload[34]);
+			seg.fs = get_long_le(&tlay2.payload[38]);
+			seg.gs = get_long_le(&tlay2.payload[42]);
 			callx86int(irq,&in,&out,&seg);
-			unsigned char buff[16];
-			put_short_le(&buff[0],out.ax);
-			put_short_le(&buff[2],out.bx);
-			put_short_le(&buff[4],out.cx);
-			put_short_le(&buff[6],out.dx);
-			put_short_le(&buff[8],out.si);
-			put_short_le(&buff[10],out.di);
-			put_short_le(&buff[12],out.bp);
-			put_short_le(&buff[14],out.eflags);
-			tlay2.reply(buff,16);
+			unsigned char buff[32];
+			put_long_le(&buff[0],out.ax);
+			put_long_le(&buff[4],out.bx);
+			put_long_le(&buff[8],out.cx);
+			put_long_le(&buff[12],out.dx);
+			put_long_le(&buff[16],out.si);
+			put_long_le(&buff[20],out.di);
+			put_long_le(&buff[24],out.bp);
+			put_long_le(&buff[28],out.eflags);
+			tlay2.reply(buff,32);
 		}
 	}
 }

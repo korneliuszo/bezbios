@@ -19,7 +19,7 @@ class tlay2_v86_monitor():
     def get_emptyregs(self):
         return copy.copy(self.emptyregs)
     def vm86_int_call(self,irq,regs):
-        cmd = bytes([1]) + struct.pack("<BHHHHHHHHHHH",
+        cmd = bytes([1]) + struct.pack("<BLLLLLLLLLLL",
                 irq,
                 regs["ax"],
                 regs["bx"],
@@ -34,7 +34,7 @@ class tlay2_v86_monitor():
                 regs["gs"])
         ret = self.conn.msg(cmd)
         keys = ("ax","bx","cx","dx","si","di","bp","eflags")
-        values = struct.unpack("<HHHHHHHH",ret)
+        values = struct.unpack("<LLLLLLLL",ret)
         d = dict(zip(keys,values))
         return regs.update(d)
         
