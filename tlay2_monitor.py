@@ -37,3 +37,10 @@ class tlay2_monitor():
         return self.conn.msgout(struct.pack("<BL",9,addr))
     def reset(self):
         return self.conn.msgout(struct.pack("<B",0xA))
+    def outl(self,port,byte):
+        self.conn.msg(struct.pack("<BHL",0xB,port,byte))
+        return
+    def inl(self,port):
+        ret=self.conn.msg(struct.pack("<BH",0xC,port))
+        return struct.unpack("<L",ret)[0]
+

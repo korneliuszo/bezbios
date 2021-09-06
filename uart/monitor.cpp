@@ -135,5 +135,22 @@ void tlay2_monitor(Tlay2 & tlay2)
 			asm("xor %%eax, %%eax; lidt %0; int3" :: "m" (null_idtr));
 		}
 		break;
+	case 0x0B: // outl
+		if (tlay2.len == 7)
+		{
+			outl(get_short_le(&tlay2.payload[1]),get_long_le(&tlay2.payload[3]));
+			io_wait(0x01);
+			tlay2.reply(nullptr,0);
+		}
+		break;
+	case 0x0C: //inl
+		if (tlay2.len == 3)
+		{
+			unsigned long ret=inl(get_short_le(&tlay2.payload[1]));
+			unsigned char buff[4];
+			put_long_le(buff,ret);
+			tlay2.reply(buff,4);
+		}
+		break;
 	}
 }
