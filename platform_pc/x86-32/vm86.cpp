@@ -263,6 +263,7 @@ static void callx86_nomut(const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentReg
 	vmm86_run = *run;
 
     asm(
+    		"pushf\n\t"
     		"cli\n\t"
     		"movl %%esp, (%P[vmm86_sp])\n\t"
 
@@ -319,6 +320,7 @@ static void callx86_nomut(const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentReg
 
 			"vmx86_ret:\n\t"
     		"movl (%P[vmm86_sp]), %%esp\n\t"
+    		"popfl\n\t"
 		: :
 		[iax] "i" (&vmm86_in.ax),
 		[ibx] "i" (&vmm86_in.bx),
