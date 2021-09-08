@@ -14,6 +14,7 @@
 #include <uart/vm86_monitor.hpp>
 #include <uart/endianbuff.h>
 #include <vm86.hpp>
+#include <apm.hpp>
 
 /*class Test
 {
@@ -116,9 +117,16 @@ static long monitor_put_palette(unsigned char data[],long len)
 	return 0;
 }
 
+static long monitor_shutdown(unsigned char [],long)
+{
+	apm.shutdown();
+	return 0;
+}
+
 const MonitorFunctions monitor_functions[] = {
 		{0,MonitorFunctions::Type::ARRAY_ARGUMENTS, monitor_init_display},
 		{1,MonitorFunctions::Type::ARRAY_ARGUMENTS, monitor_put_next_pixels},
 		{2,MonitorFunctions::Type::ARRAY_ARGUMENTS, monitor_put_palette},
+		{3,MonitorFunctions::Type::ARRAY_ARGUMENTS, monitor_shutdown},
 		{0,MonitorFunctions::Type::TERMINATOR, nullptr}
 };

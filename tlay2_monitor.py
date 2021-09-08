@@ -43,4 +43,5 @@ class tlay2_monitor():
     def inl(self,port):
         ret=self.conn.msg(struct.pack("<BH",0xC,port))
         return struct.unpack("<L",ret)[0]
-
+    def poweroff(self):
+        self.conn.msgout(struct.pack("<BB",7,3))
