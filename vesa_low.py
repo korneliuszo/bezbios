@@ -40,7 +40,7 @@ class vesa():
         scratch = b"VBE2" + b'\0'*(512-4)
         self.monitor.putmem(self.scratchpad()["linear"],scratch)
         self.v86monitor.vm86_int_call(16,regs)
-        if regs["ax"] != 0x4f:
+        if regs["ax"]&0xffff != 0x4f:
             raise Exception("VBE not found")
         scratch = self.monitor.getmem(self.scratchpad()["linear"],512)
         keys = ("sgnature","versionraw","oemstraddr","caps","vmodeaddr","memory")
@@ -62,7 +62,7 @@ class vesa():
         regs["es"] = self.scratchpad()["segment"]
         regs["di"] = self.scratchpad()["offset"]
         self.v86monitor.vm86_int_call(16,regs)
-        if regs["ax"] != 0x4f:
+        if regs["ax"]&0xffff != 0x4f:
             raise Exception("VBE not found")
         scratch = self.monitor.getmem(self.scratchpad()["linear"],256)
         
@@ -138,6 +138,4 @@ class vesa():
         regs["dx"] = self.scratchpad()["offset"]
         self.monitor.putmem(self.scratchpad()["linear"],palette)
         self.v86monitor.vm86_int_call(16,regs)
-                
-        
-                
+
