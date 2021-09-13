@@ -5,7 +5,7 @@ project(bezbios)
 
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
-add_compile_options(-Wall -Wextra -pedantic -Werror -g) 
+add_compile_options(-Wall -Wextra -pedantic -Werror -g -ffunction-sections -fdata-sections) 
 
 option(CONFIG_TGTPC "Target PC" ON)
 

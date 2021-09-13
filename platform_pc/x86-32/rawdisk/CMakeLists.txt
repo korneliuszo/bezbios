@@ -13,6 +13,7 @@ function(add_executable target_name)
 	target_link_options(${target_name} PUBLIC
 		-m32 -nostdlib -T ${THISDIR}/rawdisk.ld -static
 		-Wl,--undefined=_cstart
+		-Wl,--gc-sections
 		-Wl,-Map=$<TARGET_FILE:${target_name}>.map)
 	set_target_properties(${target_name} PROPERTIES 
 		LINK_DEPENDS ${THISDIR}/rawdisk.ld)
