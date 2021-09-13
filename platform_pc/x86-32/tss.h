@@ -65,6 +65,7 @@ extern TSS_io tss_io;
 extern "C" {
 void tss_clear_busy(void);
 void apm_setup_gdt(unsigned long cs, unsigned long cs16, unsigned long ds16);
+void tss_init(void);
 }
 
 #endif /* PLATFORM_PC_X86_32_TSS_H_ */

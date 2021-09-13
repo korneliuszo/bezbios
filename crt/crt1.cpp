@@ -14,6 +14,7 @@
 
 #include <interrupts.h>
 #include <uart/bezbios_uart_api_low.h>
+#include <tss.h>
 
 extern "C" {
 
@@ -60,6 +61,8 @@ _cstart(void) {
 	long i, count;
 
 	bezbios_serial_bootup_init();
+
+	tss_init();
 
 	bezbios_init_interrupts();
 

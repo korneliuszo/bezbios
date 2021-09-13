@@ -26,7 +26,5 @@ _pstart:
 	movl $(__stack_end-1), %esp
 	movl $(__stack_end-1), %ebp
 	push $0
-.extern tss_init
-	call tss_init
 .extern _cstart
 	jmp $0x08,$_cstart

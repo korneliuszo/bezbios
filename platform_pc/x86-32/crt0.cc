@@ -27,7 +27,6 @@ static_assert(sizeof(gdt_table_t) == 8, "Verifying size failed!");
 #define GDT_BASE_MID(x) ((x>>16) & 0xFF)
 #define GDT_BASE_HIGH(x) ((x>>(16+8)) & 0xFF)
 
-__attribute__((section(".data")))
 TSS_io tss_io;
 
 #define GDT_ACCES_CXR_0 (1<<7 | 0 << 5 | 1<<4 | 1 <<3 | 0 << 2 | 1 << 1 | 0 << 0)
@@ -93,8 +92,6 @@ extern "C"
 {
 Gdt_pointer gdt_pointer = {sizeof(gdt_table)-1,gdt_table};
 
-__attribute__((cdecl))
-__attribute__((section(".init")))
 void tss_init(void)
 {
 	tss_io.t.io_base = (DWORD)(&(tss_io.io_map)) - (DWORD)(&(tss_io));
