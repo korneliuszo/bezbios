@@ -108,7 +108,7 @@ class vesa():
         regs["ax"] = 0x4f02
         regs["bx"] = mode
         self.v86monitor.vm86_int_call(16,regs)
-        if regs["ax"] != 0x4f:
+        if regs["ax"]&0xffff != 0x4f:
             raise Exception("VBE not found")
         
     def move_window(self,slice):
@@ -117,7 +117,7 @@ class vesa():
         regs["bx"] = 0
         regs["dx"] = slice
         self.v86monitor.vm86_int_call(16,regs)
-        if regs["ax"] != 0x4f:
+        if regs["ax"]&0xffff != 0x4f:
             raise Exception("VBE not found")
  
     def putpixels(self,pixels):
