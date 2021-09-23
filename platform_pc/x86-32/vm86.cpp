@@ -367,3 +367,36 @@ void callx86int(unsigned char isr, const Vmm86Regs * in, Vmm86Regs * out, Vmm86S
 
 	vmm86_mutex.release();
 }
+
+__attribute__((used))
+__attribute__((section(".loram_code")))
+static unsigned char vm86_lc[] = { 0x9a,0x00,0x00,0x00,0x00, 0xf4};	/* far call; hlt	*/
+
+void callx86ptr(LONGADDR entry, const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentRegisters *seg, unsigned short stack[8])
+{
+	vmm86_mutex.aquire();
+
+	vm86_lc[1] = entry.offset;
+	vm86_lc[2] = entry.offset>>8;
+	vm86_lc[3] = entry.segment;
+	vm86_lc[4] = entry.segment>>8;
+
+	VM86RUNPARAMS rparm;
+
+	rparm.code = vmm86_to_segment(vm86_lc,true);
+	rparm.stack = vmm86_to_segment(vm86_stack+sizeof(vm86_stack)-1);
+
+	VM86RegPtr ss(&rparm.stack.segment,&rparm.stack.offset);
+
+	for(int i=8;i!=0;i--)
+		ss.pushS<unsigned short>(stack[i]);
+	ss.pushS<unsigned short>(0); // fix stack pointer
+
+	unsigned long eflags = getflags();
+
+	rparm.eflags = 0x00020000 //VM86, IOPL=0
+				| (eflags & (1<<9)); //copy interrupt flag
+	callx86_nomut(in,out,seg,&rparm);
+
+	vmm86_mutex.release();
+}

@@ -13,6 +13,7 @@
 #include <uart/monitor.hpp>
 #include <uart/vm86_monitor.hpp>
 #include <uart/endianbuff.h>
+#include <pnpmonitor.hpp>
 #include <vm86.hpp>
 #include <apm.hpp>
 
@@ -87,6 +88,7 @@ static BEZBIOS_INIT_PIT delay_implementation;
 struct Tlay2Payloads tlay2_payloads[] = {
 		{1,tlay2_monitor},
 		{2,tlay2_v86_monitor},
+		{3,tlay2_pnp_monitor},
 		{0,nullptr} // terminator
 };
 

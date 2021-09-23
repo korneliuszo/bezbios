@@ -84,6 +84,11 @@ SECTIONS
 	{
 		*(.loram_scratch)
 	} > LO_RAM AT> RAM
+
+	.loram_scratch2 BLOCK(64K) (NOLOAD) : ALIGN(64K)
+	{
+		*(.loram_scratch2)
+	} > LO_RAM AT> RAM
 	
 	.loram_code BLOCK(64K) : ALIGN(64K)
 	{

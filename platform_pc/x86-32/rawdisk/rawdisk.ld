@@ -92,8 +92,11 @@ SECTIONS
 	{
 		*(.loram_scratch)
 	} > LO_RAM
-
-
+	
+	.loram_scratch2 BLOCK(64K) (NOLOAD) : ALIGN(64K)
+	{
+		*(.loram_scratch2)
+	} > LO_RAM
 
 	.debug_gdb_scripts 0 (INFO) :
 	{
