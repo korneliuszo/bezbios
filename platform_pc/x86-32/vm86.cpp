@@ -9,6 +9,8 @@
 #include "vm86.hpp"
 #include "sched/bezbios_sched_api.h"
 #include "io.h"
+#include <uart/tlay2_dbgout.hpp>
+
 
 __attribute__((used))
 __attribute__((section(".loram_code")))
@@ -96,6 +98,8 @@ static constexpr unsigned long PUSH_MASK = ~(1<<17 | 1<<16); //VM RF
 static constexpr unsigned long POP_MASK = ~(1<<17 | 1<<16 | 3<<12 | 1<<9); //VM RF IOPL IF
 static constexpr unsigned long POP_SET = (1<<17 | 0<<12 | 1<<9); //VM IOPL = 0 IF
 
+static unsigned short vm86_init_stackptr;
+
 bool vm86_handle_gpf(Error_stack *frame)
 {
 	VM86_stack<User_stack<Error_stack>> *stack = (VM86_stack<User_stack<Error_stack>>*)frame;
@@ -110,6 +114,11 @@ bool vm86_handle_gpf(Error_stack *frame)
     {
     case 0xf4: //hlt
     {
+    	if(vm86_init_stackptr != stack->esp)
+    	{
+    		DbgOut<UartBlocking> sender;
+    		sender.str("OOPS!! VM86 USES HALT").end();
+    	}
     	vmm86_return->ax = frame->eax;
     	vmm86_return->bx = frame->ebx;
     	vmm86_return->cx = frame->ecx;
@@ -261,6 +270,8 @@ static void callx86_nomut(const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentReg
 	vmm86_seg = *seg;
 	vmm86_in = *in;
 	vmm86_run = *run;
+
+	vm86_init_stackptr = run->stack.offset;
 
     asm(
     		"pushf\n\t"
