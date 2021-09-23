@@ -399,9 +399,8 @@ void callx86ptr(LONGADDR entry, const Vmm86Regs * in, Vmm86Regs * out, Vmm86Segm
 
 	VM86RegPtr ss(&rparm.stack.segment,&rparm.stack.offset);
 
-	for(int i=8;i!=0;i--)
+	for(int i=7;i>=0;i--)
 		ss.pushS<unsigned short>(stack[i]);
-	ss.pushS<unsigned short>(0); // fix stack pointer
 
 	unsigned long eflags = getflags();
 
