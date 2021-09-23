@@ -23,9 +23,9 @@ typedef struct
 static_assert(sizeof(gdt_table_t) == 8, "Verifying size failed!");
 
 
-#define GDT_BASE_LOW(x) (x & 0xFFFF)
-#define GDT_BASE_MID(x) ((x>>16) & 0xFF)
-#define GDT_BASE_HIGH(x) ((x>>(16+8)) & 0xFF)
+#define GDT_BASE_LOW(x) ((x) & 0xFFFF)
+#define GDT_BASE_MID(x) (((x)>>16) & 0xFF)
+#define GDT_BASE_HIGH(x) (((x)>>(16+8)) & 0xFF)
 
 TSS_io tss_io;
 
