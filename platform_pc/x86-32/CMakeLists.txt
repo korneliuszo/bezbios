@@ -16,6 +16,11 @@ target_compile_options(crt0 PUBLIC -march=i486 -O2 -m32 -mgeneral-regs-only -nos
 enable_language(ASM)
 target_sources(crt0 PRIVATE crtentry.S)
 
+target_include_directories(crt0
+	INTERFACE 
+		${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 if(CONFIG_CACHED_ASM)
 enable_language(ASM)
 target_sources(crt0 PRIVATE crt0.S)
