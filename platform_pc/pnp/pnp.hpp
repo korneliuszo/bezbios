@@ -26,6 +26,7 @@ class PnP {
 	public:
 	PnP();
 	unsigned short get_node_info(unsigned short *no_nodes, unsigned short *max_size);
+	unsigned short get_system_node(unsigned char *no_node, unsigned char **buff);
 };
 
 extern PnP pnp;

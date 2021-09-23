@@ -100,5 +100,20 @@ unsigned short PnP::get_node_info(unsigned short *no_nodes, unsigned short *max_
 	return ret;
 }
 
+unsigned short PnP::get_system_node(unsigned char *no_node, unsigned char **buff)
+{
+	LONGADDR scratch = vmm86_to_segment(vm86_page2,true);
+	vm86_page2[0] = *no_node;
+	vm86_page2[1] = 0;
+	unsigned short ret = call(0x01,
+			scratch.offset+0,
+			scratch.segment,
+			scratch.offset+2,
+			scratch.segment,
+			1,ds,0);
+	*buff = &vm86_page2[2];
+	*no_node = vm86_page2[0];
+	return ret;
+}
 
 PnP pnp;

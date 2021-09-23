@@ -25,5 +25,21 @@ void tlay2_pnp_monitor(Tlay2 & tlay2)
 			tlay2.reply(buff,5);
 		}
 		break;
+	case 0x01: // get pnpnode
+		if (tlay2.len == 2)
+		{
+			unsigned char * buff;
+			unsigned char node = tlay2.payload[1];
+			unsigned short result = pnp.get_system_node(&node,&buff);
+			tlay2.replyinit();
+			unsigned char retcode[3];
+			put_short_le(&retcode[0],result);
+			retcode[2] = node;
+			tlay2.replyput(retcode,3);
+			unsigned short len = *(unsigned short *)(&buff[0]);
+			tlay2.replyput(buff,len);
+			tlay2.replyend();
+		}
+		break;
 	}
 }
