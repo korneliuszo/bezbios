@@ -59,5 +59,6 @@ void tlay2_v86_monitor(Tlay2 & tlay2)
 			put_long_le(&buff[28],out.eflags);
 			tlay2.reply(buff,32);
 		}
+		break;
 	}
 }
