@@ -118,7 +118,7 @@ bool vm86_handle_gpf(Error_stack *frame)
     	vmm86_return->di = frame->edi;
     	vmm86_return->bp = frame->ebp;
     	vmm86_return->eflags = frame->eflags;
-    	asm("jmp vmx86_ret");
+    	asm("jmp vmx86_ret"::: "memory");
     	break;
     }
     case 0x66: //OPERAND_SIZE_PREFIX
@@ -345,7 +345,7 @@ static void callx86_nomut(const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentReg
 		[tsp] "i" (&tss_io.t.esp0),
 		[tss] "i" (&tss_io.t.ss0),
 		[vmm86_sp] "i"(&vmm86_sp)
-		:	"eax","ebx","ecx","edx","esi","edi","ebp");
+		:	"eax","ebx","ecx","edx","esi","edi","ebp","memory");
     tss_clear_busy();
 }
 
