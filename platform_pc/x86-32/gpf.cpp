@@ -29,7 +29,7 @@ gpfC (Error_stack *frame)
 		DbgOut<UartBlocking> sender;
 		sender.str("OOPS!! unhandled GPF AT").hex(frame->eip).end();
 		unsigned long * stack = (unsigned long*)frame;
-		for(int i=0;i<32;i++)
+		for(int i=0;i<64;i++)
 		{
 			sender.hex(i).str(" ").hex(stack[i]).end();
 		}
