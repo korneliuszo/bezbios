@@ -77,6 +77,27 @@ void Tlay2::reply(const unsigned char * payload, long len)
 	msgout(ctr,pid,payload,len);
 }
 
+void Tlay2::replyinit()
+{
+	send_mutex.aquire();
+	send_crc = crc_init();
+	put_escaped(ctr);
+	put_escaped(pid);
+}
+
+void Tlay2::replyput(const unsigned char * payload, long len)
+{
+	for(long i=0;i<len;i++)
+		put_escaped(payload[i]);
+}
+
+void Tlay2::replyend()
+{
+	put_escaped(send_crc);
+	putch('\n');
+	send_mutex.release();
+}
+
 void Tlay2::put_escaped(unsigned char c)
 {
 	send_crc = crc_update(send_crc, &c, 1);

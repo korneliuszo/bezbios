@@ -25,6 +25,9 @@ public:
 	long len;
 	BezBios::Sched::Mutex send_mutex;
 	void reply(const unsigned char * payload, long len);
+	void replyinit();
+	void replyput(const unsigned char * payload, long len);
+	void replyend();
 	void msgout(unsigned char ctr,unsigned char pid, const unsigned char * payload, long len);
 	void dbgout(const char * msg);
 	Tlay2(void (*_putch)(unsigned char), unsigned char (*_getch)() );
