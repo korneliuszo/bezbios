@@ -62,6 +62,7 @@ enable_language(ASM)
 target_sources(interrupts PRIVATE gpf.S)
 else()
 target_sources(interrupts PRIVATE gpf.cpp)
+set_source_files_properties(gpf.cpp PROPERTIES COMPILE_OPTIONS "-Wno-address-of-packed-member")
 endif()
 
 target_include_directories(interrupts
@@ -79,6 +80,7 @@ enable_language(ASM)
 target_sources(vm86 PRIVATE vm86.S)
 else()
 target_sources(vm86 PRIVATE vm86.cpp)
+set_source_files_properties(vm86.cpp PROPERTIES COMPILE_OPTIONS "-Wno-address-of-packed-member")
 endif()
 
 target_link_libraries(vm86 crt)
