@@ -18,7 +18,7 @@ class Tlay2_msg():
     def __init__(self,fnaddr):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.s.connect(("127.0.0.1",12346))
-        self.s.settimeout(1)
+        self.s.settimeout(2)
         self.fnaddr = bytes([fnaddr])
     def msgout(self,payload):
         self.s.send(self.fnaddr+payload)
