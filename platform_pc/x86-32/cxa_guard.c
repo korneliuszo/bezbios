@@ -11,12 +11,12 @@
 int __cxa_guard_acquire(unsigned long long * guard_object)
 {
 	unsigned long flags = cli();
-	if((unsigned char)*guard_object)
+	if(*(unsigned char*)guard_object)
 	{
 		sti(flags);
 		return 0;
 	}
-	*guard_object = (*guard_object&0xffffffff) | (unsigned long long)flags << 32 | 1;
+	*guard_object = ((unsigned long long)flags << 32) | 1;
 	return 1;
 }
 

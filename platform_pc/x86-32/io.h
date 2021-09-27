@@ -84,11 +84,11 @@ static inline unsigned long cli()
 {
 	unsigned long ret;
     asm volatile("# __raw_save_flags\n\t"
-             "pushf ; pop %0"
+             "pushf ; pop %0 \n\t"
+    		 "cli"
              : "=rm" (ret)
              : /* no input */
              : "memory");
-	asm volatile("cli");
 	return ret;
 }
 

@@ -97,7 +97,7 @@ static Vmm86Regs * vmm86_return;
 static constexpr unsigned long PUSH_MASK = ~(1<<17 | 1<<16); //VM RF
 static constexpr unsigned long POP_MASK = ~(1<<17 | 1<<16 | 3<<12 | 1<<9); //VM RF IOPL IF
 static constexpr unsigned long POP_SET = (1<<17 | 0<<12); //VM IOPL = 0
-static unsigned long vm86_ie;
+static volatile unsigned long vm86_ie;
 
 static unsigned short vm86_init_stackptr;
 
