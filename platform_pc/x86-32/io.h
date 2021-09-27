@@ -49,6 +49,8 @@ static inline void io_wait(unsigned char point)
     asm volatile ( "outb %0, $0x80" : : "a"(point) );
 }
 
+#ifdef __cplusplus
+
 template
 <unsigned short PORT_OUT, unsigned short PORT_IN = PORT_OUT>
 class ByteIO {
@@ -75,6 +77,8 @@ public:
 		return rval;
 	}
 };
+
+#endif
 
 static inline unsigned long cli()
 {
