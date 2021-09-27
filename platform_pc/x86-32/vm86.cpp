@@ -96,7 +96,8 @@ static Vmm86Regs * vmm86_return;
 
 static constexpr unsigned long PUSH_MASK = ~(1<<17 | 1<<16); //VM RF
 static constexpr unsigned long POP_MASK = ~(1<<17 | 1<<16 | 3<<12 | 1<<9); //VM RF IOPL IF
-static constexpr unsigned long POP_SET = (1<<17 | 0<<12 | 1<<9); //VM IOPL = 0 IF
+static constexpr unsigned long POP_SET = (1<<17 | 0<<12); //VM IOPL = 0
+static unsigned long vm86_ie;
 
 static unsigned short vm86_init_stackptr;
 
@@ -143,7 +144,7 @@ bool vm86_handle_gpf(Error_stack *frame)
     	case 0x9D: //POPF
     	{
     		unsigned long eflags = ss.popS<unsigned long>();
-    		stack->eflags = (eflags & POP_MASK) | POP_SET;
+    		stack->eflags = (eflags & POP_MASK) | POP_SET | vm86_ie;
     		return true;
     	}
     	case 0xEF: /* outl (%dx), ax */
@@ -185,7 +186,7 @@ bool vm86_handle_gpf(Error_stack *frame)
 	case 0x9D: //POPF
 	{
 		unsigned long eflags = ss.popS<unsigned short>();
-		stack->eflags = (eflags & POP_MASK) | POP_SET;
+		stack->eflags = (eflags & POP_MASK) | POP_SET | vm86_ie;
 		return true;
 	}
 	case 0xCD: //INTn
@@ -204,7 +205,7 @@ bool vm86_handle_gpf(Error_stack *frame)
 		stack->eip = ss.popS<unsigned short>();
 		stack->cs =  ss.popS<unsigned short>();
 		unsigned long eflags = ss.popS<unsigned short>();
-		stack->eflags = (eflags & POP_MASK) | POP_SET;
+		stack->eflags = (eflags & POP_MASK) | POP_SET | vm86_ie;
 		return true;
 	}
 	case 0xEE: /* outb (%dx), al */
@@ -406,6 +407,7 @@ void callx86ptr(LONGADDR entry, const Vmm86Regs * in, Vmm86Regs * out, Vmm86Segm
 
 	rparm.eflags = 0x00020000 //VM86, IOPL=0
 				| (eflags & (1<<9)); //copy interrupt flag
+	vm86_ie = eflags & (1<<9);
 	callx86_nomut(in,out,seg,&rparm);
 
 	vmm86_mutex.release();
