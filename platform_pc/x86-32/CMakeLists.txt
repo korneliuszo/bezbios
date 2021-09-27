@@ -37,7 +37,7 @@ else()
 target_sources(sched PRIVATE sched_asm.cc)	
 endif()
 
-add_library(gcc_internals STATIC stack_protector_iface.c)
+add_library(gcc_internals STATIC stack_protector_iface.c cxa_guard.c)
 set_property(TARGET gcc_internals
              PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
 target_link_libraries(gcc_internals crt0)
