@@ -375,6 +375,7 @@ void callx86int(unsigned char isr, const Vmm86Regs * in, Vmm86Regs * out, Vmm86S
 
 	rparm.eflags = 0x00020000 //VM86, IOPL=0
 				| (eflags & (1<<9)); //copy interrupt flag
+	vm86_ie = eflags & (1<<9);
 	callx86_nomut(in,out,seg,&rparm);
 
 	vmm86_mutex.release();
