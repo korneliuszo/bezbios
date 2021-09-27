@@ -27,10 +27,8 @@ class PnP {
 	PnP();
 	unsigned short get_node_info(unsigned short *no_nodes, unsigned short *max_size);
 	unsigned short get_system_node(unsigned char *no_node, unsigned char **buff);
+	static PnP& get_singleton();
 };
-
-extern PnP pnp;
-
 
 
 

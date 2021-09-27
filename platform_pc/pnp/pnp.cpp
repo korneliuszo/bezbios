@@ -116,4 +116,9 @@ unsigned short PnP::get_system_node(unsigned char *no_node, unsigned char **buff
 	return ret;
 }
 
-PnP pnp;
+PnP& PnP::get_singleton()
+{
+	static PnP pnp;
+	return pnp;
+}
+

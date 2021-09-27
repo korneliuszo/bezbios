@@ -17,7 +17,7 @@ void tlay2_pnp_monitor(Tlay2 & tlay2)
 		{
 			unsigned short no_nodes;
 			unsigned short max_size;
-			unsigned short result = pnp.get_node_info(&no_nodes,&max_size);
+			unsigned short result = PnP::get_singleton().get_node_info(&no_nodes,&max_size);
 			unsigned char buff[5];
 			put_short_le(&buff[0],result);
 			buff[2] = no_nodes;
@@ -30,7 +30,7 @@ void tlay2_pnp_monitor(Tlay2 & tlay2)
 		{
 			unsigned char * buff;
 			unsigned char node = tlay2.payload[1];
-			unsigned short result = pnp.get_system_node(&node,&buff);
+			unsigned short result = PnP::get_singleton().get_system_node(&node,&buff);
 			tlay2.replyinit();
 			unsigned char retcode[3];
 			put_short_le(&retcode[0],result);
