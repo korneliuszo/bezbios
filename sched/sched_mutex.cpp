@@ -15,7 +15,7 @@ void BezBios::Sched::Mutex::aquire() {
 		waiting.set(tid, 1);
 		bezbios_sched_task_ready(tid,0);
 		bezbios_sched_switch_context (locked);
-		asm("cli");
+		asm("cli":::"memory");
 	}
 	locked = tid;
 	waiting.set(tid, 0);
@@ -66,7 +66,7 @@ BezBios::Sched::Mutex::Mutex()
 void BezBios::Sched::ConditionVariable::wait()
 {
 	int tid = bezbios_sched_get_tid();
-	asm volatile("cli");
+	asm volatile("cli":::"memory");
 	waiting.set(tid,1);
 	bezbios_sched_free_cpu(0);
 }
