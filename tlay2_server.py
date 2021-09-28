@@ -13,6 +13,7 @@ crc8 = crcmod.predefined.mkCrcFun('crc-8')
 
 connections = {}
 
+my_mutex = threading.Lock()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind(("127.0.0.1",12346))
@@ -23,9 +24,11 @@ s2.connect(("127.255.255.255",12347))
 
 def udprecv():
     global connections
+    global my_mutex
     curid = 1
     while True:
         data, addr = s.recvfrom(1024)
+        #print("Sending:",data)
         buff=b''
         data = bytes([curid]) + data
         data += bytes([crc8(data)])
@@ -39,6 +42,7 @@ def udprecv():
                 byte ^= 0x80
             buff+=bytes([byte])
         buff+=b'\n'
+        my_mutex.acquire()
         ser.write(buff)
     
 
@@ -58,6 +62,7 @@ while True:
             if buff[0] == 0:
                 s2.send(buff[1:-1])
             else:
+                my_mutex.release()
                 s.sendto(buff[1:-1],connections[buff[0]])
         buff = b""
         continue
