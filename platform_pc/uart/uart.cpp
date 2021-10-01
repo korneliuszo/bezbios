@@ -85,11 +85,13 @@ void bezbios_imp_hw_req<INT>::f(Isr_stack *)
 				  }
 				  else
 				  {
-					  bezbios_int_ack(INT);
-					  return;
+					  char drop = RBR;
+					  drop = drop;
+					  goto drop_char;
 				  }
 			  }
 			  fifo_put(&serial_rx,RBR);
+			  drop_char:;
 		  }
 		  rx_cv.notify_all();
 		  break;
