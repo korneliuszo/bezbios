@@ -63,15 +63,27 @@ loop:
 	jmp loop
 noerror:
 
-	add $1,brSector
-	cmpb $19, brSector
-	jne AddEnd
+	push %es
+	xor %ax, %ax                  // 0 AX
+	mov %ax, %es                 // Set Extra Segment to 0
+	mov $0x08, %ah
+	mov brDrive, %dl
+	mov $0, %di
+	int $0x13
+	jc loop
+	pop %es
+
+	and $0x3f, %cl
+
+	addb $1,brSector
+	cmpb %cl, brSector
+	jle AddEnd
 	movb $1, brSector
-	add $1,brHead
-	cmpb $2, brHead
-	jne AddEnd
+	addb $1,brHead
+	cmpb %dh, brHead
+	jle AddEnd
 	movb $0, brHead
-	add $1, brCylinder
+	addb $1, brCylinder
 
 AddEnd:
 	mov %es,%ax
