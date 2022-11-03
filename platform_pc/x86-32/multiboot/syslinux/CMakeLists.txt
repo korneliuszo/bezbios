@@ -1,15 +1,12 @@
-set_property(GLOBAL PROPERTY MBSF ${CMAKE_CURRENT_SOURCE_DIR})
-
 function(floppy_syslinux target_name)
-	get_property(THISDIR GLOBAL PROPERTY MBSF)
 	
 	add_executable_mboot(${target_name} ${ARGN})
 	
-	configure_file(${THISDIR}/syslinux.cfg.in syslinux.cfg @ONLY)
+	configure_file(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/syslinux.cfg.in syslinux.cfg @ONLY)
 	add_custom_target(
 			${target_name}.img ALL
 		DEPENDS
-			${target_name}
+			${target_name}.stripped
 		BYPRODUCTS
 			${target_name}.img
 		COMMAND truncate -s 1440k
