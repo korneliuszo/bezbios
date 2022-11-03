@@ -1,4 +1,3 @@
-
 option(CONFIG_CACHED_ASM "Use asm" OFF)
 
 option(CONFIG_TGTMB "Target multiboot" ON)
@@ -12,7 +11,9 @@ if(CONFIG_TGTRD)
 endif()
 
 add_library(crt0 STATIC)
-target_compile_options(crt0 PUBLIC -march=i486 -O2 -m32 -mgeneral-regs-only -nostdinc -fno-pic)
+target_compile_options(crt0 PUBLIC -march=i486 -O2 -m32 -mgeneral-regs-only -fno-pic)
+target_link_options(crt0 PUBLIC -specs=nano.specs -specs=nosys.specs)
+
 enable_language(ASM)
 target_sources(crt0 PRIVATE crtentry.S)
 
@@ -34,13 +35,16 @@ if(CONFIG_CACHED_ASM)
 enable_language(ASM)
 target_sources(sched PRIVATE sched_asm.S)	
 else()
-target_sources(sched PRIVATE sched_asm.cc)	
+target_sources(sched PRIVATE sched_asm.cc)
+target_compile_options(sched PRIVATE -fomit-frame-pointer)
+set_property(TARGET sched
+             PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
 endif()
 
-add_library(gcc_internals STATIC stack_protector_iface.c cxa_guard.c)
+add_library(gcc_internals STATIC cxa_guard.cpp)
 set_property(TARGET gcc_internals
              PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
-target_link_libraries(gcc_internals crt0)
+target_link_libraries(gcc_internals crt0 sched)
 
 configure_file(thread_py.h.in thread_py.h @ONLY)
 target_include_directories(sched
@@ -81,6 +85,7 @@ target_sources(vm86 PRIVATE vm86.S)
 else()
 target_sources(vm86 PRIVATE vm86.cpp)
 set_source_files_properties(vm86.cpp PROPERTIES COMPILE_OPTIONS "-Wno-address-of-packed-member")
+target_compile_options(vm86 PRIVATE -fomit-frame-pointer)
 endif()
 
 target_link_libraries(vm86 crt)

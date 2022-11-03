@@ -22,9 +22,9 @@ extern "C" {
 
 extern char __bss_start;
 extern char __bss_end;
-extern char __sloram_copy;
-extern char __eloram_copy;
-extern char __loram_copy;
+extern char *__sloram_copy[];
+extern char *__eloram_copy[];
+extern char *__loram_copy[];
 
 
 void

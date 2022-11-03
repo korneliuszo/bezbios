@@ -11,7 +11,7 @@ function(add_executable target_name)
 	target_compile_options(${target_name} INTERFACE -march=i486 -O2 -m32 -mgeneral-regs-only -nostdinc -fno-pic)
 	target_sources(${target_name} PRIVATE ${SCHED_MAIN})
 	target_link_options(${target_name} PUBLIC
-		-m32 -nostdlib -T ${THISDIR}/rawdisk.ld -static
+		-m32 -nostartfiles -T ${THISDIR}/rawdisk.ld -static
 		-Wl,--undefined=_cstart
 		-Wl,--gc-sections
 		-Wl,-Map=$<TARGET_FILE:${target_name}>.map)

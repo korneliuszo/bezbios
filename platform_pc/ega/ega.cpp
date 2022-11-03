@@ -9,6 +9,8 @@
 
 #include<io.h>
 
+#include <bit>
+
 const DisplayParameters display_parameters =
 {
 		.height = 480,
@@ -94,7 +96,7 @@ void init_display()
 	ega_mutex.release();
 }
 
-static unsigned char *VGA_MEM = (unsigned char *)0xA0000;
+static unsigned char *VGA_MEM = std::bit_cast<unsigned char *>(0xA0000);
 
 static void set_plane(char p)
 {

@@ -16,7 +16,7 @@ function(add_executable target_name)
 	target_sources(${target_name} PRIVATE ${SCHED_MAIN})
 	target_sources(${target_name} PRIVATE ${THISDIR}/multiboot_header.cpp)
 	target_link_options(${target_name} PUBLIC
-		-m32 -nostdlib -T ${THISDIR}/multiboot.ld -static
+		-m32 -nostartfiles -T ${THISDIR}/multiboot.ld -static
 		-Wl,--gc-sections
 		-Wl,--undefined=_cstart
 		-Wl,-Map=$<TARGET_FILE:${target_name}>.map)

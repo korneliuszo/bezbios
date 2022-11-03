@@ -1,0 +1,24 @@
+
+set(CMAKE_CROSSCOMPILING TRUE)
+set(CMAKE_SYSTEM_NAME i486-bezbios-elf)
+
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_PROCESSOR i486)
+
+set(tools $ENV{HOME}/x-tools/i486-bezbios-elf)
+
+#set(CMAKE_SYSROOT ${tools}/i486-bezbios-elf)
+
+#set(ENV{GCC_EXEC_PREFIX} "i486-bezbios-elf-")
+
+set(CMAKE_TRY_COMPILE_TARGET_TYPE   STATIC_LIBRARY)
+
+set(CMAKE_C_COMPILER ${tools}/bin/i486-bezbios-elf-gcc)
+set(CMAKE_CXX_COMPILER ${tools}/bin/i486-bezbios-elf-g++)
+
+set(CMAKE_C_FLAGS -specs=nano.specs CACHE INTERNAL "")
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
