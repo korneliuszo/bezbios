@@ -1,14 +1,9 @@
-option(CONFIG_CACHED_ASM "Use asm" OFF)
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake)
 
-option(CONFIG_TGTMB "Target multiboot" ON)
-if(CONFIG_TGTMB)
-	add_subdirectory(multiboot)
-endif()
+project(x86-32)
 
-option(CONFIG_TGTRD "Target rawdisk" OFF)
-if(CONFIG_TGTRD)
-	add_subdirectory(rawdisk)
-endif()
+add_subdirectory(multiboot)
+add_subdirectory(rawdisk)
 
 add_library(crt0 STATIC)
 target_compile_options(crt0 PUBLIC -march=i486 -O2 -m32 -mgeneral-regs-only -fno-pic)
@@ -22,24 +17,14 @@ target_include_directories(crt0
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if(CONFIG_CACHED_ASM)
-enable_language(ASM)
-target_sources(crt0 PRIVATE crt0.S)
-else()
 target_sources(crt0 PRIVATE crt0.cc)
-endif()
 
 add_library(sched STATIC sched_low.cpp)
 
-if(CONFIG_CACHED_ASM)
-enable_language(ASM)
-target_sources(sched PRIVATE sched_asm.S)	
-else()
 target_sources(sched PRIVATE sched_asm.cc)
 target_compile_options(sched PRIVATE -fomit-frame-pointer)
 set_property(TARGET sched
              PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
-endif()
 
 add_library(gcc_internals STATIC cxa_guard.cpp)
 set_property(TARGET gcc_internals
@@ -61,13 +46,9 @@ add_library(interrupts
 		timerPIT.cpp
 )
 
-if(CONFIG_CACHED_ASM)
-enable_language(ASM)
-target_sources(interrupts PRIVATE gpf.S)
-else()
+
 target_sources(interrupts PRIVATE gpf.cpp)
 set_source_files_properties(gpf.cpp PROPERTIES COMPILE_OPTIONS "-Wno-address-of-packed-member")
-endif()
 
 target_include_directories(interrupts
 	INTERFACE
@@ -79,13 +60,8 @@ add_library(vm86
 	STATIC
 )
 
-if(CONFIG_CACHED_ASM)
-enable_language(ASM)
-target_sources(vm86 PRIVATE vm86.S)
-else()
 target_sources(vm86 PRIVATE vm86.cpp)
 set_source_files_properties(vm86.cpp PROPERTIES COMPILE_OPTIONS "-Wno-address-of-packed-member")
 target_compile_options(vm86 PRIVATE -fomit-frame-pointer)
-endif()
 
 target_link_libraries(vm86 crt)

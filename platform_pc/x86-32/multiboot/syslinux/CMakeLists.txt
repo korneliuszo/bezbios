@@ -1,7 +1,10 @@
 set_property(GLOBAL PROPERTY MBSF ${CMAKE_CURRENT_SOURCE_DIR})
 
-function(package_floppy target_name)
+function(floppy_syslinux target_name)
 	get_property(THISDIR GLOBAL PROPERTY MBSF)
+	
+	add_executable_mboot(${target_name} ${ARGN})
+	
 	configure_file(${THISDIR}/syslinux.cfg.in syslinux.cfg @ONLY)
 	add_custom_target(
 			${target_name}.img ALL

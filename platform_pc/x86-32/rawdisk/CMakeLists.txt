@@ -1,13 +1,9 @@
 set_property(GLOBAL PROPERTY RDF ${CMAKE_CURRENT_SOURCE_DIR})
 
-function(add_library target_name)
-	_add_library(${target_name} ${ARGN})
-endfunction()
-
-function(add_executable target_name)
+function(add_executable_low target_name)
 	get_property(THISDIR GLOBAL PROPERTY RDF)
 	get_property(SCHED_MAIN GLOBAL PROPERTY SCHED_MAIN)
-	_add_executable(${target_name} ${ARGN})
+	add_executable(${target_name} ${ARGN})
 	target_compile_options(${target_name} INTERFACE -march=i486 -O2 -m32 -mgeneral-regs-only -nostdinc -fno-pic)
 	target_sources(${target_name} PRIVATE ${SCHED_MAIN})
 	target_link_options(${target_name} PUBLIC
@@ -47,8 +43,10 @@ function(add_executable target_name)
 endfunction()
 
 
-function(package_floppy target_name)
+function(floppy_raw target_name)
 	get_property(THISDIR GLOBAL PROPERTY RDF)
+
+	add_executable_low(${target_name} ${ARGN})
 
 	add_custom_target(
 			${target_name}.bin.o
@@ -63,7 +61,7 @@ function(package_floppy target_name)
  				$<TARGET_FILE:${target_name}>.bin.o
 	)
 
-	_add_executable(${target_name}_mbr ${THISDIR}/mbr.S ${target_name}.bin.o)
+	add_executable(${target_name}_mbr ${THISDIR}/mbr.S ${target_name}.bin.o)
 	target_compile_options(${target_name}_mbr PRIVATE 
 		-march=i486 -O2 -m16 -mgeneral-regs-only 
 		-nostdinc -fno-pic -x assembler-with-cpp

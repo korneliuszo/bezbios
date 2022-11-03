@@ -1,17 +1,12 @@
-set(CONFIG_TGTMB_BOOTLOADER grub CACHE STRING "Choose bootloader")
-
-add_subdirectory(${CONFIG_TGTMB_BOOTLOADER})
+add_subdirectory(grub)
+add_subdirectory(syslinux)
 
 set_property(GLOBAL PROPERTY MBF ${CMAKE_CURRENT_SOURCE_DIR})
 
-function(add_library target_name)
-	_add_library(${target_name} ${ARGN})
-endfunction()
-
-function(add_executable target_name)
+function(add_executable_mboot target_name)
 	get_property(THISDIR GLOBAL PROPERTY MBF)
 	get_property(SCHED_MAIN GLOBAL PROPERTY SCHED_MAIN)
-	_add_executable(${target_name} ${ARGN})
+	add_executable(${target_name} ${ARGN})
 	target_compile_options(${target_name} INTERFACE -march=i486 -O2 -m32 -mgeneral-regs-only -nostdinc -fno-pic)
 	target_sources(${target_name} PRIVATE ${SCHED_MAIN})
 	target_sources(${target_name} PRIVATE ${THISDIR}/multiboot_header.cpp)

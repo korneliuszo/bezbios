@@ -4,7 +4,7 @@ set -x
 socat pty,link=tlay2.pty,raw tcp-listen:1235,reuseaddr &
 SOCAT_PID=$!
 sleep 1
-qemu-system-i386 -cpu 486 -m 4M -fda build_loader/loader/loader.img -gdb tcp::1234 -serial tcp:127.0.0.1:1235 $@ &
+qemu-system-i386 -cpu 486 -m 4M -fda build/loader/loader.img -gdb tcp::1234 -serial tcp:127.0.0.1:1235 $@ &
 QEMU_PID=$!
 ./tlay2_server.py tlay2.pty
 kill $QEMU_PID $SOCAT_PID
