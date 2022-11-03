@@ -16,7 +16,6 @@ bool vm86_handle_gpf(Error_stack *)
 	return false;
 }
 
-__attribute__((cdecl))
 void
 gpfC (Error_stack *frame)
 {

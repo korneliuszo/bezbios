@@ -35,9 +35,7 @@ long bezbios_get_ms()
 	return ret;
 }
 
-template<>
-__attribute__((cdecl))
-void bezbios_imp_hw_req<0>::f(Isr_stack *)
+static void PIT_IRQ(Isr_stack *)
 {
 	systick_msf +=systick_add;
 
@@ -65,6 +63,7 @@ void init_PIT() {
 	outb(0x43,0x34);
 	outb(0x40,PIT_RELOAD_INT &0xff);
 	outb(0x40,PIT_RELOAD_INT >> 8);
+	register_isr(0,PIT_IRQ);
 	bezbios_enable_irq(0);
 }
 

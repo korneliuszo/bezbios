@@ -38,9 +38,7 @@ DEFINE_STATIC_FIFO(serial_tx,FIFO_SIZE);
 BezBios::Sched::ConditionVariable rx_cv;
 BezBios::Sched::ConditionVariable tx_cv;
 
-template<>
-__attribute__((cdecl))
-void bezbios_imp_hw_req<INT>::f(Isr_stack *)
+static void UART_IRQ(Isr_stack *)
 {
 	unsigned char IIR_cached = IIR;
 
@@ -110,6 +108,7 @@ void bezbios_serial_init() {
 	FCR = 0x07;    // Enable FIFO, clear them, with 1-byte threshold
 	MCR = 0x08;    // route interrupt
 	IER = 0x01;    // receive IRQ enabled
+	register_isr(INT,UART_IRQ);
 	bezbios_enable_irq(INT);
 }
 

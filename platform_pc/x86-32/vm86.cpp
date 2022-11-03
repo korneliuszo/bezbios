@@ -89,7 +89,7 @@ struct __attribute__((packed)) VM86_stack : LOSTACK{
 	unsigned long gs;
 };
 
-static_assert(sizeof(VM86_stack<User_stack<Error_stack>>) == 84, "Verifying size failed!");
+static_assert(sizeof(VM86_stack<User_stack<Error_stack>>) == 88, "Verifying size failed!");
 
 
 static Vmm86Regs * vmm86_return;

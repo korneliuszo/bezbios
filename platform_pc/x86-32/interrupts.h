@@ -46,12 +46,13 @@ struct __attribute__((packed)) Error_stack {
 	unsigned long edx;
 	unsigned long ecx;
 	unsigned long eax;
+	unsigned long irq;
 	unsigned long error_code;
 	unsigned long eip;
 	unsigned long cs;
 	unsigned long eflags;
 };
-static_assert(sizeof(Error_stack) == 60, "Verifying size failed!");
+static_assert(sizeof(Error_stack) == 64, "Verifying size failed!");
 
 struct __attribute__((packed)) Isr_stack {
 	unsigned long gs;
@@ -65,152 +66,47 @@ struct __attribute__((packed)) Isr_stack {
 	unsigned long edx;
 	unsigned long ecx;
 	unsigned long eax;
+	unsigned long irq;
 	unsigned long eip;
 	unsigned long cs;
 	unsigned long eflags;
 };
-static_assert(sizeof(Isr_stack) == 56, "Verifying size failed!");
+static_assert(sizeof(Isr_stack) == 60, "Verifying size failed!");
 
 void gpfC (struct Error_stack *frame);
+void bezbios_irq_handler(void) __attribute__((naked));
+void bezbios_irq_C_handler(Isr_stack *stack) __attribute__((cdecl));
 
-template<typename STACK, void CFUN(STACK *)> class ISR;
+template<typename STACK, int IRQ_NO> class ISR;
 
-template<void CFUN(Isr_stack *)>
-class ISR<Isr_stack,CFUN> {
+template<int IRQ_NO>
+class ISR<Isr_stack,IRQ_NO> {
 public:
 	static void fn(void) __attribute__((naked))
 	{
 		asm(
 				".cfi_def_cfa_offset 4\n\t"
-				"push %%eax\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%ecx\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%edx\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%ebx\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%ebp\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%esi\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%edi\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%ds\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%es\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%fs\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%gs\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"mov $0x10, %%eax\n\t"
-				"mov %%eax, %%ds\n\t"
-				"mov %%eax, %%es\n\t"
-				"mov %%eax, %%fs\n\t"
-				"mov %%eax, %%gs\n\t"
-				"movl %%esp, %%eax\n\t"
-				"push %%eax\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"call %P[CFUN]\n\t"
-				"addl $4, %%esp\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%gs\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%fs\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%es\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%ds\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%edi\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%esi\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%ebp\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%ebx\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%edx\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%ecx\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%eax\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"iret\n\t"
+				"push %[IRQ_NO]\n\t"
+				"jmp %P[FUN]\n\t"
 		:
-		: [CFUN]"i"(CFUN)
+		: [IRQ_NO]"i"(IRQ_NO), [FUN]"i"(bezbios_irq_handler)
 		);
 	};
 };
+void bezbios_err_handler(void) __attribute__((naked));
+void bezbios_err_C_handler(Error_stack *stack) __attribute__((cdecl));
 
-template<void CFUN(Error_stack *)>
-class ISR<Error_stack, CFUN> {
+template<int IRQ_NO>
+class ISR<Error_stack, IRQ_NO> {
 public:
 	static void fn(void) __attribute__((naked))
 	{
 		asm(
 				".cfi_def_cfa_offset 8\n\t"
-				"push %%eax\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%ecx\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%edx\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%ebx\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%ebp\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%esi\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%edi\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%ds\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%es\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%fs\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"push %%gs\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"mov $0x10, %%eax\n\t"
-				"mov %%eax, %%ds\n\t"
-				"mov %%eax, %%es\n\t"
-				"mov %%eax, %%fs\n\t"
-				"mov %%eax, %%gs\n\t"
-				"movl %%esp, %%eax\n\t"
-				"push %%eax\n\t"
-				".cfi_adjust_cfa_offset 4\n\t"
-				"call %P[CFUN]\n\t"
-				"addl $4, %%esp\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%gs\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%fs\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%es\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%ds\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%edi\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%esi\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%ebp\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%ebx\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%edx\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%ecx\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"pop %%eax\n\t"
-				".cfi_adjust_cfa_offset -4\n\t"
-				"addl $4, %%esp\n\t"
-				".cfi_def_cfa_offset 4\n\t"
-				"iret\n\t"
+				"push %[IRQ_NO]\n\t"
+				"jmp %P[FUN]\n\t"
 		:
-		: [CFUN]"i"(CFUN)
+		: [IRQ_NO]"i"(IRQ_NO), [FUN]"i"(bezbios_err_handler)
 		);
 	};
 };
@@ -234,14 +130,8 @@ public:
 	);
 };
 */
-template<typename STACK, void CFUN(STACK *)>
-void bezbios_irq_idt(unsigned char irqn,ISR<STACK,CFUN> *irq, unsigned char dpl=0, bool trap=false);
 
-template<unsigned char IRQ>
-class bezbios_imp_hw_req {
-public:
-    static void f(Isr_stack *);
-};
+void register_isr(int irq,void(*fn)(Isr_stack*));
 
 
 #endif /* PLATFORM_PC_X86_32_INTERRUPTS_H_ */

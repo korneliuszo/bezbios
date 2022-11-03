@@ -35,8 +35,7 @@ static_assert(sizeof(IDTSegment) == 6, "Verifying size failed!");
 
 static struct IDTSegment idt_seg = {256*sizeof(*idt)-1, idt};
 
-template<typename STACK, void CFUN(STACK *)>
-void bezbios_irq_idt(unsigned char irqn,ISR<STACK,CFUN> *irq, unsigned char dpl, bool trap)
+static void bezbios_irq_idt(unsigned char irqn, void(*irq)(void), unsigned char dpl=0, bool trap=false)
 {
 	if(irq == nullptr)
 	{
@@ -48,8 +47,8 @@ void bezbios_irq_idt(unsigned char irqn,ISR<STACK,CFUN> *irq, unsigned char dpl,
 	else
 	{
 		idt[irqn].selector = 0x08; // see GDT table
-		idt[irqn].offset_1 = ((unsigned long)&irq->fn)&0xffff;
-		idt[irqn].offset_2 = ((unsigned long)&irq->fn)>>16;
+		idt[irqn].offset_1 = ((unsigned long)irq)&0xffff;
+		idt[irqn].offset_2 = ((unsigned long)irq)>>16;
 		idt[irqn].type_attr = 0x80 | dpl << 5 | (trap?0xf:0xe);
 	}
 }
@@ -61,14 +60,173 @@ void bezbios_int_ack(unsigned char IRQ)
 	PIC1_CMD = 0x20; //EOI
 }
 
+static void bezbios_int_default(Isr_stack *stack)
+{
+    	bezbios_int_ack(stack->irq); //eat spurious interrupts
+}
+
+void bezbios_irq_handler(void)
+{
+	asm(
+			".cfi_def_cfa_offset 4\n\t"
+			"push %%eax\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%ecx\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%edx\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%ebx\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%ebp\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%esi\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%edi\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%ds\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%es\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%fs\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%gs\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"mov $0x10, %%eax\n\t"
+			"mov %%eax, %%ds\n\t"
+			"mov %%eax, %%es\n\t"
+			"mov %%eax, %%fs\n\t"
+			"mov %%eax, %%gs\n\t"
+			"movl %%esp, %%eax\n\t"
+			"push %%eax\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"call %P[CFUN]\n\t"
+			"addl $4, %%esp\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%gs\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%fs\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%es\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%ds\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%edi\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%esi\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%ebp\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%ebx\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%edx\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%ecx\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%eax\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"addl $4, %%esp\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"iret\n\t"
+	:
+	: [CFUN]"i"(bezbios_irq_C_handler)
+	);
+
+}
+
+void bezbios_err_handler(void)
+{
+	asm(
+			".cfi_def_cfa_offset 4\n\t"
+			"push %%eax\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%ecx\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%edx\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%ebx\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%ebp\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%esi\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%edi\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%ds\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%es\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%fs\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"push %%gs\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"mov $0x10, %%eax\n\t"
+			"mov %%eax, %%ds\n\t"
+			"mov %%eax, %%es\n\t"
+			"mov %%eax, %%fs\n\t"
+			"mov %%eax, %%gs\n\t"
+			"movl %%esp, %%eax\n\t"
+			"push %%eax\n\t"
+			".cfi_adjust_cfa_offset 4\n\t"
+			"call %P[CFUN]\n\t"
+			"addl $4, %%esp\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%gs\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%fs\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%es\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%ds\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%edi\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%esi\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%ebp\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%ebx\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%edx\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%ecx\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"pop %%eax\n\t"
+			".cfi_adjust_cfa_offset -4\n\t"
+			"addl $8, %%esp\n\t"
+			".cfi_def_cfa_offset 4\n\t"
+			"iret\n\t"
+	:
+	: [CFUN]"i"(bezbios_err_C_handler)
+	);
+};
+
+void bezbios_err_C_handler(Error_stack *stack)
+{
+	gpfC(stack);
+}
+
+
+static void(* volatile irq_handler[16])(Isr_stack*);
+
+void bezbios_irq_C_handler(Isr_stack *stack)
+{
+	irq_handler[stack->irq](stack);
+}
+
+void register_isr(int irq,void(*fn)(Isr_stack*))
+{
+	ENTER_ATOMIC();
+	irq_handler[irq]=fn;
+	EXIT_ATOMIC();
+}
+
 template<int I>
 class _hwirqloop_init {
 public:
     static inline void f()
     {
     	unsigned char irq_offset=(I<8)?0x20:(0x28-8);
-    	ISR<Isr_stack,bezbios_imp_hw_req<I>::f> irq;
-    	bezbios_irq_idt(I+irq_offset,&irq);
+    	bezbios_irq_idt(I+irq_offset,ISR<Isr_stack,I>::fn);
         _hwirqloop_init<I+1>::f();
     }
 };
@@ -97,8 +255,10 @@ void bezbios_init_interrupts(void)
 	PIC2_DAT = 0xff;
 
 	_hwirqloop_init<0>::f();
-	static ISR<Error_stack,gpfC> gpf_isr;
-	bezbios_irq_idt(0x0D,&gpf_isr);
+	for(int i=0;i<16;i++)
+		register_isr(i,bezbios_int_default);
+
+	bezbios_irq_idt(0x0D,ISR<Error_stack,0x0D>::fn);
 
 	asm volatile("lidt (%0) " :  : "r"(&idt_seg));
 	asm volatile("sti"); //now we can start interrupts

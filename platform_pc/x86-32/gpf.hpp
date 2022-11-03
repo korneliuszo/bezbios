@@ -16,7 +16,7 @@ struct __attribute__((packed)) User_stack : LOSTACK {
 	unsigned long ss;
 };
 
-static_assert(sizeof(User_stack<Error_stack>) == 68, "Verifying size failed!");
+static_assert(sizeof(User_stack<Error_stack>) == 72, "Verifying size failed!");
 
 
 #endif /* PLATFORM_PC_X86_32_GPF_HPP_ */
