@@ -109,6 +109,11 @@ SECTIONS
 
 	.debug_gdb_scripts 0 (INFO) :
 	{
-		*(.debug_gdb_scripts)
+		KEEP(*(.debug_gdb_scripts))
+	}
+
+	.eh_frame 0 (INFO) :
+	{
+		KEEP(*(.eh_frame))
 	}
 }

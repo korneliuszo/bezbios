@@ -85,8 +85,7 @@ public:
 	static void fn(void) __attribute__((naked))
 	{
 		asm(
-				".cfi_def_cfa_offset 4\n\t"
-				"push %[IRQ_NO]\n\t"
+				"pushl %[IRQ_NO]\n\t"
 				"jmp %P[FUN]\n\t"
 		:
 		: [IRQ_NO]"i"(IRQ_NO), [FUN]"i"(bezbios_irq_handler)
@@ -102,8 +101,7 @@ public:
 	static void fn(void) __attribute__((naked))
 	{
 		asm(
-				".cfi_def_cfa_offset 8\n\t"
-				"push %[IRQ_NO]\n\t"
+				"pushl %[IRQ_NO]\n\t"
 				"jmp %P[FUN]\n\t"
 		:
 		: [IRQ_NO]"i"(IRQ_NO), [FUN]"i"(bezbios_err_handler)

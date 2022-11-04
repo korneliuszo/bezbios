@@ -68,7 +68,7 @@ static void bezbios_int_default(Isr_stack *stack)
 void bezbios_irq_handler(void)
 {
 	asm(
-			".cfi_def_cfa_offset 4\n\t"
+			".cfi_def_cfa_offset 8\n\t"
 			"push %%eax\n\t"
 			".cfi_adjust_cfa_offset 4\n\t"
 			"push %%ecx\n\t"
@@ -136,7 +136,7 @@ void bezbios_irq_handler(void)
 void bezbios_err_handler(void)
 {
 	asm(
-			".cfi_def_cfa_offset 4\n\t"
+			".cfi_def_cfa_offset 12\n\t"
 			"push %%eax\n\t"
 			".cfi_adjust_cfa_offset 4\n\t"
 			"push %%ecx\n\t"
@@ -193,7 +193,7 @@ void bezbios_err_handler(void)
 			"pop %%eax\n\t"
 			".cfi_adjust_cfa_offset -4\n\t"
 			"addl $8, %%esp\n\t"
-			".cfi_def_cfa_offset 4\n\t"
+			".cfi_adjust_cfa_offset -8\n\t"
 			"iret\n\t"
 	:
 	: [CFUN]"i"(bezbios_err_C_handler)
