@@ -23,6 +23,7 @@ void bezbios_sched_destroy_task(int tid);
 
 void bezbios_sched_task_ready(int tid, bool is_ready);
 int bezbios_sched_free_cpu(bool reschedule);
+int bezbios_sched_sel_task(bool reschedule,int sel_tid);
 int rr_next_task();
 void bezbios_sched_exit(int tid);
 
@@ -126,6 +127,14 @@ public:
 };
 
 extern ConditionVariable * condition_variable_list_head;
+
+class ConditionVariableSingle{
+private:
+	int wait_tid;
+public:
+	int notify();
+	void wait();
+};
 
 }
 }

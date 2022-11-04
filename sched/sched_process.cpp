@@ -54,6 +54,24 @@ int bezbios_sched_free_cpu(bool reschedule)
 	return 0;
 }
 
+int bezbios_sched_sel_task(bool reschedule,int sel_tid)
+{
+	ENTER_ATOMIC();
+	int tid = bezbios_sched_get_tid();
+	bezbios_sched_task_ready(tid,reschedule);
+	if (sel_tid != tid)
+	{
+		bezbios_sched_task_ready(sel_tid, 0);
+		bezbios_sched_switch_context(sel_tid);
+		return 1;
+	}
+	else
+	{
+		EXIT_ATOMIC();
+	}
+	return 0;
+}
+
 void bezbios_sched_exit(int tid)
 {
 	asm("cli");

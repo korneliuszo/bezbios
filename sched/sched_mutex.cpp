@@ -88,6 +88,27 @@ bool BezBios::Sched::ConditionVariable::notify_all()
 	return resheduleable;
 }
 
+void BezBios::Sched::ConditionVariableSingle::wait()
+{
+	asm volatile("cli":::"memory");
+	wait_tid = bezbios_sched_get_tid();
+	bezbios_sched_free_cpu(0);
+}
+
+int BezBios::Sched::ConditionVariableSingle::notify()
+{
+	int resheduleable = 0;
+	ENTER_ATOMIC();
+	resheduleable = wait_tid;
+	if (resheduleable)
+	{
+		bezbios_sched_task_ready(resheduleable,1);
+		wait_tid = 0;
+	}
+	EXIT_ATOMIC();
+	return resheduleable;
+}
+
 void BezBios::Sched::ConditionVariable::destroy_task(int tid)
 {
 	ENTER_ATOMIC();
