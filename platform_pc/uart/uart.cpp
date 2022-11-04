@@ -35,8 +35,8 @@ constexpr long FIFO_SIZE = 32;
 DEFINE_STATIC_FIFO(serial_rx,FIFO_SIZE);
 DEFINE_STATIC_FIFO(serial_tx,FIFO_SIZE);
 
-BezBios::Sched::ConditionVariable rx_cv;
-BezBios::Sched::ConditionVariable tx_cv;
+static BezBios::Sched::ConditionVariableSingle rx_cv;
+static BezBios::Sched::ConditionVariableSingle tx_cv;
 
 static void UART_IRQ(Isr_stack *)
 {
@@ -65,33 +65,36 @@ static void UART_IRQ(Isr_stack *)
 				  break;
 			  }
 		  }
-		  tx_cv.notify_all();
+		  tx_cv.notify();
 		  break;
 	case 0x04: //recv threshold
 	case 0x0C: //timeout
 		  while (LSR & 0x01)
 		  {
-			  while(fifo_check(&serial_rx) == FIFO_SIZE-1)
+			  while(fifo_check(&serial_rx) > FIFO_SIZE-5)
 			  {
-				  if(rx_cv.notify_all())
+				  int rx_tid;
+				  if((rx_tid = rx_cv.notify()))
 				  {
 					  bezbios_disable_irq(INT);
 					  bezbios_int_ack(INT);
-					  bezbios_sched_free_cpu(1);
+					  bezbios_sched_sel_task(1,rx_tid);
 					  cli();
 					  bezbios_enable_irq(INT);
 				  }
 				  else
-				  {
-					  char drop = RBR;
-					  drop = drop;
-					  goto drop_char;
-				  }
+					  break;
+			  }
+			  if(fifo_check(&serial_rx) == FIFO_SIZE-1)
+			  {
+						  char drop = RBR;
+						  drop = drop;
+						  goto drop_char;
 			  }
 			  fifo_put(&serial_rx,RBR);
 			  drop_char:;
 		  }
-		  rx_cv.notify_all();
+		  rx_cv.notify();
 		  break;
 	}
 	IIR_cached = IIR;
