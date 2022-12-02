@@ -3,14 +3,13 @@ import vesa_low
 
 m=vesa_low.vesa()
 
-mode=m.vbe_get_mode_info(259)
-m.set_video_mode(259)
+m.set_video_mode(259|0x4000)
 
 from PIL import Image
 from PIL import ImageColor
 import sys
 im=Image.open(sys.argv[1]).convert("RGB")
-im=im.resize((mode['XResolution'],mode['YResolution']))
+im=im.resize((m.modeinfo['XResolution'],m.modeinfo['YResolution']))
 
 pixels = b''
 

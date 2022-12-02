@@ -54,7 +54,7 @@ class vesa():
         return d
       
     def vbe_get_mode_info(self,mode):
-        if not mode in self.vbe_info()["modes"]:
+        if not mode & 0xfff in self.vbe_info()["modes"]:
             raise Exception("Mode not supported")
         regs=self.v86monitor.get_emptyregs()
         regs["ax"] = 0x4f01
@@ -85,7 +85,7 @@ class vesa():
                 "MemoryModel",
                 "BankSize",
                 "NumberOfImagePages",
-                "Reserved",
+                "Reserved0",
                 "RedMaskSize",
                 "RedFieldPosition",
                 "GreenMaskSize",
@@ -93,21 +93,27 @@ class vesa():
                 "BlueMaskSize",
                 "BlueFieldPosition",
                 "RsvdMaskSize",
-                "DirectColorModeInfo"
+                "RsvdMaskPos",
+                "DirectColorModeInfo",
+                "Framebuffer",
+                "OffScreenMemOff",
+                "OffScreenMemSize"
                 )
-        values = struct.unpack("<HBBHHHHIHHHBBBBBBBBBBBBBBBBB",scratch[:39])
+        values = struct.unpack("<HBBHHHHIHHHBBBBBBBBBBBBBBBBBBIIH",scratch[:50])
         d = dict(zip(keys,values))
         return d
         
     modeinfo = None
+    mode = None
     def set_video_mode(self,mode):    
-        if not mode in self.vbe_info()["modes"]:
+        if not mode & 0xfff in self.vbe_info()["modes"]:
             raise Exception("Mode not supported")
         self.modeinfo = self.vbe_get_mode_info(mode)
         regs=self.v86monitor.get_emptyregs()
         regs["ax"] = 0x4f02
         regs["bx"] = mode
         self.v86monitor.vm86_int_call(16,regs)
+        self.mode = mode
         if regs["ax"]&0xffff != 0x4f:
             raise Exception("VBE not found")
         
@@ -125,6 +131,9 @@ class vesa():
         winsize = self.modeinfo['WinSize'] * 1024
         wingran = self.modeinfo['WinGranularity'] * 1024
         bpixels = bytes(pixels)
+        if self.mode & 0x4000:
+            self.monitor.putmem(self.modeinfo['Framebuffer'],bpixels)
+            return
         for i in range(0,len(pixels),winsize):
             self.move_window(i//wingran)
             self.monitor.putmem(baseaddr,bpixels[i:i+winsize])
