@@ -42,20 +42,6 @@ void bezbios_sched_switch_context(int nexttask)
 	switchcontext_int(&global_threads_sp[tid].stack,global_threads_sp[nexttask].stack, entry,global_threads_sp[nexttask].val);
 }
 
-void bezbios_sched_switch_context_exit(int nexttask)
-{
-	asm volatile("cli");
-
-	int tid = current_tid;
-	current_tid = nexttask;
-
-	auto entry = global_threads_sp[current_tid].entry;
-	global_threads_sp[current_tid].entry = nullptr;
-
-	BezBios::Sched::m32ngro::
-	switchcontext_exit(&global_threads_sp[tid].stack,global_threads_sp[nexttask].stack, entry,global_threads_sp[nexttask].val);
-}
-
 int bezbios_sched_get_tid()
 {
 	return current_tid;
