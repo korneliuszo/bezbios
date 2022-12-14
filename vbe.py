@@ -13,12 +13,19 @@ im=im.resize((m.modeinfo['XResolution'],m.modeinfo['YResolution']))
 
 pixels = b''
 
+pal_image= Image.new("P", (1,1))
+pal_pal = list()
+for i in range(256):
+    pal_pal.extend((
+    i&0xE0,
+    (i&0x1C)<<3,
+    (i&0x03)<<6,
+    ))
+pal_image.putpalette(pal_pal)
+im=im.quantize(palette=pal_image)
+
 for pix in im.getdata():
-    r = pix[0] >> 5
-    g = pix[1] >> 5
-    b = pix[2] >> 6
-    c = r << 5 | g << 2 | b
-    pixels+=bytes([c])
+    pixels+=bytes([pix])
 
 m.putpixels(pixels)
 
