@@ -122,4 +122,15 @@ static inline void sti(unsigned long prev)
 #define MEM_BARRIER() \
 	asm volatile ("" : : : "memory")
 
+#ifdef __cplusplus
+
+class HWLOCK {
+	unsigned long _is_interrupt;
+public:
+	HWLOCK() {_is_interrupt = cli();}
+	~HWLOCK() { sti(_is_interrupt);}
+};
+
+#endif
+
 #endif /* PLATFORM_PC_X86_32_IO_H_ */
