@@ -19,13 +19,14 @@ static constexpr unsigned long long systick_add =
 		PIT_RELOAD_INT / PIT_INP_FREQ * 1000 *(1ULL<<32) + 0.5;
 
 
-struct DelayList {
+struct DelayList :public List<DelayList> {
 	volatile long timeout;
-	DelayList * volatile next;
+	ThreadControlBlock * tcb;
+	DelayList() : List(false){};
+	DelayList(DelayList * block) : List(block,false){};
 };
 
-static DelayList delay_tbl[CONFIG_MAX_THREADS];
-static DelayList * volatile delay_head = nullptr;
+static DelayList *  delay_head = nullptr;
 
 long bezbios_get_ms()
 {
@@ -39,21 +40,24 @@ static void PIT_IRQ(Isr_stack *)
 {
 	systick_msf +=systick_add;
 
-	long now = systick_msf >> 32;
-	DelayList* newhead = delay_head;
-	for (;
-			newhead != nullptr;
-			newhead = newhead->next)
+	if(delay_head)
 	{
-		if(newhead->timeout > now)
-			break;
-		bezbios_sched_task_ready(newhead - delay_tbl,1);
+		long now = systick_msf >> 32;
+		DelayList* newhead = delay_head;
+		for(newhead = delay_head;newhead != nullptr;newhead = delay_head)
+		{
+			if(newhead->timeout > now)
+				break;
+			bezbios_sched_task_ready(newhead->tcb,1);
+			delay_head = newhead->next;
+			newhead->unplug();
+		}
 	}
-	delay_head = newhead;
+
 
 	bezbios_int_ack(0);
-	int tid = bezbios_sched_get_tid();
-	if(tid) // if in main/idle task we don't do preemption
+
+	if(!bezbios_sched_is_idle()) // if in main/idle task we don't do preemption
 	{
 		bezbios_sched_free_cpu(1); //Round-Robin
 	}
@@ -69,35 +73,33 @@ void init_PIT() {
 
 void bezbios_delay_ms(int ms)
 {
-	int tid = bezbios_sched_get_tid();
-	DelayList* ptr=&delay_tbl[tid];
 	cli();
 	long now = bezbios_get_ms();
 	long timeout = now + ms;
-	ptr->timeout = timeout;
 
-	DelayList* oldhead = nullptr;
+
+	DelayList wait;
+
 	DelayList* newhead = delay_head;
-	for (;
-		newhead != nullptr;
-		oldhead = newhead,
-		newhead = newhead->next
-		)
+	DelayList* oldhead = nullptr;
+	for(newhead = delay_head;newhead != nullptr;newhead=newhead->next)
 	{
-		if(newhead->timeout > timeout)
-		{
+		if(newhead->timeout > now)
 			break;
-		}
+		oldhead = newhead;
 	}
-	if (delay_head == newhead)
-	{
-		ptr->next=newhead;
-		delay_head = ptr;
-	}
+	if(oldhead)
+		wait.plug(oldhead, true);
 	else
 	{
-		ptr->next = newhead;
-		oldhead->next = ptr;
+		delay_head = &wait;
+		if(newhead)
+			newhead->plug(&wait,false);
 	}
+
+
+	wait.timeout = timeout;
+	wait.tcb = bezbios_sched_get_tid();
+
 	bezbios_sched_free_cpu(0);
 }

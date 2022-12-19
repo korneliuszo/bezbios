@@ -73,7 +73,7 @@ static void UART_IRQ(Isr_stack *)
 		  {
 			  while(fifo_check(&serial_rx) > FIFO_SIZE-5)
 			  {
-				  int rx_tid;
+				  ThreadControlBlock * rx_tid;
 				  if((rx_tid = rx_cv.notify()))
 				  {
 					  bezbios_disable_irq(INT);

@@ -51,10 +51,11 @@ static
 void first()
 {
 	Yieldcptr yield;
-	int stid=bezbios_sched_create_task((void(*)(void*))second,
+	ThreadControlBlock stid;
+	bezbios_sched_create_task(&stid,(void(*)(void*))second,
 			&second_stack[4095],
 			&yield);
-	yield.connect(stid);
+	yield.connect(&stid);
 
 	long i = 0;
 	for (char * letter = yield.future_data();letter;letter = yield.future_data())
@@ -67,7 +68,7 @@ void first()
 			i=0;
 		}
 	}
-	bezbios_sched_destroy_task(stid);
+	bezbios_sched_destroy_task(&stid);
 }
 
 void third()

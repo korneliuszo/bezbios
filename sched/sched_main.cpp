@@ -19,19 +19,20 @@ void bezbios_main(void);
 
 void bezbios_main()
 {
-
+	idle_tcb.plug(bezbios_sched_get_tid(), true);
+	bezbios_sched_idle_it_is();
 	while(1)
 	{
-		int wait_tid;
+		ThreadControlBlock * wait_tid;
 		do {
 			asm("cli");
 			wait_tid = rr_next_task();
-			if (wait_tid != 0)
+			if (wait_tid != &idle_tcb)
 			{
 				bezbios_sched_task_ready(wait_tid, 0);
 				bezbios_sched_switch_context(wait_tid);
 			}
-		} while(wait_tid != 0);
+		} while(wait_tid != &idle_tcb);
 		{
 			asm(
 				"sti\n\t"

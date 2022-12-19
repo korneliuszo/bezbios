@@ -8,32 +8,44 @@
 #ifndef SCHED_BEZBIOS_SCHED_API_H_
 #define SCHED_BEZBIOS_SCHED_API_H_
 
-#define CONFIG_MAX_THREADS 15
+#include "list.hpp"
+struct Thread_sp {
+	void * stack;
+	void (*entry)(void *);
+	void * val;
+};
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+class ThreadControlBlock :public Thread_sp, public List<ThreadControlBlock> {
+public:
+	bool ready;
+	ThreadControlBlock() : List(true){};
+	ThreadControlBlock(ThreadControlBlock * block) : List(block,true){};
 
-void bezbios_sched_switch_context(int nexttask);
-int bezbios_sched_get_tid();
-int bezbios_sched_create_task(void (*entry)(void *), void *stackbottom, void * val);
-void bezbios_sched_destroy_task(int tid);
+};
 
 
-void bezbios_sched_task_ready(int tid, bool is_ready);
+void bezbios_sched_switch_context(ThreadControlBlock * nexttask);
+ThreadControlBlock * bezbios_sched_get_tid();
+bool bezbios_sched_is_idle();
+void bezbios_sched_idle_it_is();
+void bezbios_sched_create_task(ThreadControlBlock * tid, void (*entry)(void *), void *stackbottom, void * val);
+void bezbios_sched_destroy_task(ThreadControlBlock * tid);
+
+
+extern ThreadControlBlock idle_tcb;
+
+void bezbios_sched_task_ready(ThreadControlBlock * tid, bool is_ready);
 int bezbios_sched_free_cpu(bool reschedule);
-int bezbios_sched_sel_task(bool reschedule,int sel_tid);
-int rr_next_task();
-void bezbios_sched_exit(int tid);
-
-#ifdef __cplusplus
-}
+int bezbios_sched_sel_task(bool reschedule,ThreadControlBlock * sel_tid);
+ThreadControlBlock * rr_next_task();
+void bezbios_sched_exit(ThreadControlBlock * tid);
 
 template<void(*fn)(void), long size>
 class BEZBIOS_CREATE_PROCESS
 {
 private:
 	int stack[size] = {};
+	ThreadControlBlock tcb;
 	static void entry(void *)	 {
 		fn();
 		bezbios_sched_exit(bezbios_sched_get_tid());
@@ -41,8 +53,8 @@ private:
 public:
 	BEZBIOS_CREATE_PROCESS()
 	{
-		int stid=bezbios_sched_create_task(entry, &stack[size-1], this);
-		bezbios_sched_task_ready(stid,1);
+		bezbios_sched_create_task(&tcb,entry, &stack[size-1], this);
+		bezbios_sched_task_ready(&tcb,1);
 	}
 };
 
@@ -52,15 +64,15 @@ template<typename T>
 class ForYield {
 private:
 	volatile T value;
-	volatile int for_task;
-	volatile int yield_task;
+	ThreadControlBlock * for_task;
+	ThreadControlBlock * yield_task;
 
 public:
 	ForYield() :
-			value(nullptr), for_task(-1), yield_task(-1) {
+			value(nullptr), for_task(nullptr), yield_task(nullptr) {
 	}
 	;
-	void connect(int remote) {
+	void connect(ThreadControlBlock * remote) {
 		yield_task = remote;
 		for_task = bezbios_sched_get_tid();
 	}
@@ -99,16 +111,23 @@ public:
 	}
 };
 
+class TCB_LIST : public List<TCB_LIST>
+{
+public:
+	ThreadControlBlock * tcb;
+	TCB_LIST() : List(true){};
+	TCB_LIST(TCB_LIST * block) : List(block,false){};
+};
 
 class Mutex{
 private:
-	volatile Bitfield<CONFIG_MAX_THREADS> waiting;
-	volatile int locked; //thread id, thread 0 cannot into mutexes
+	ThreadControlBlock * locked; //thread id, thread 0 cannot into mutexes
 	Mutex * next;
+	TCB_LIST wthreads;
 public:
 	void aquire();
 	void release();
-	void destroy_task(int tid);
+	void destroy_task(ThreadControlBlock * tid);
 	Mutex();
 };
 
@@ -116,12 +135,12 @@ extern Mutex * mutex_list_head;
 
 class ConditionVariable{
 private:
-	volatile Bitfield<CONFIG_MAX_THREADS> waiting;
 	ConditionVariable * next;
+	TCB_LIST wthreads;
 public:
 	bool notify_all();
 	void wait();
-	void destroy_task(int tid);
+	void destroy_task(ThreadControlBlock * tid);
 	ConditionVariable();
 };
 
@@ -129,15 +148,13 @@ extern ConditionVariable * condition_variable_list_head;
 
 class ConditionVariableSingle{
 private:
-	int wait_tid;
+	ThreadControlBlock * wait_tid;
 public:
-	int notify();
+	ThreadControlBlock * notify();
 	void wait();
 };
 
 }
 }
-
-#endif
 
 #endif /* SCHED_BEZBIOS_SCHED_API_H_ */

@@ -8,39 +8,33 @@
 #include "bezbios_sched_api.h"
 #include "io.h"
 
-static volatile  BezBios::Sched::Bitfield<CONFIG_MAX_THREADS> threads_wfi;
 
 
-
-void bezbios_sched_task_ready(int tid, bool is_ready)
+void bezbios_sched_task_ready(ThreadControlBlock * tid, bool is_ready)
 {
-		threads_wfi.set(tid, is_ready);
+	tid->ready = is_ready;
 }
 
-int rr_next_task()
+ThreadControlBlock * rr_next_task()
 {
-	int tid = bezbios_sched_get_tid();
-	int wait_tid = 0; // falltrough to bezbios_main task
+	ThreadControlBlock * tid = bezbios_sched_get_tid();
 	// rr no priority
-	for(int it=tid+1;it < CONFIG_MAX_THREADS;it++)
+	for(ThreadControlBlock * check = tid->next;check != tid;check = check->next)
 	{
-		if(!wait_tid && threads_wfi.get(it))
-			wait_tid = it;
+		if(check->ready && check != &idle_tcb)
+		{
+			return check;
+		}
 	}
-	for(int it=1;it < tid+1;it++)
-	{
-		if(!wait_tid && threads_wfi.get(it))
-			wait_tid = it;
-	}
-	return wait_tid;
+	return &idle_tcb; // falltrough to bezbios_main task
 }
 
 int bezbios_sched_free_cpu(bool reschedule)
 {
 	ENTER_ATOMIC();
-	int tid = bezbios_sched_get_tid();
+	ThreadControlBlock * tid = bezbios_sched_get_tid();
 	bezbios_sched_task_ready(tid,reschedule);
-	int wait_tid = rr_next_task();
+	ThreadControlBlock * wait_tid = rr_next_task();
 	if (wait_tid != tid)
 	{
 		bezbios_sched_task_ready(wait_tid, 0);
@@ -54,10 +48,10 @@ int bezbios_sched_free_cpu(bool reschedule)
 	return 0;
 }
 
-int bezbios_sched_sel_task(bool reschedule,int sel_tid)
+int bezbios_sched_sel_task(bool reschedule,ThreadControlBlock * sel_tid)
 {
 	ENTER_ATOMIC();
-	int tid = bezbios_sched_get_tid();
+	ThreadControlBlock * tid = bezbios_sched_get_tid();
 	bezbios_sched_task_ready(tid,reschedule);
 	if (sel_tid != tid)
 	{
@@ -72,13 +66,14 @@ int bezbios_sched_sel_task(bool reschedule,int sel_tid)
 	return 0;
 }
 
-void bezbios_sched_exit(int tid)
+void bezbios_sched_exit(ThreadControlBlock * tid)
 {
 	asm("cli");
+	bezbios_sched_task_ready(tid,0);
 	bezbios_sched_destroy_task(tid);
 	BezBios::Sched::mutex_list_head->destroy_task(tid);
 	BezBios::Sched::condition_variable_list_head->destroy_task(tid);
-	int wait_tid = rr_next_task();
+	ThreadControlBlock * wait_tid = rr_next_task();
 	bezbios_sched_switch_context(wait_tid);
 	return;
 }

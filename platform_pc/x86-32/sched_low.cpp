@@ -10,12 +10,6 @@
 #include "sched_low.h"
 #include "io.h"
 
-struct Threads_sp {
-	void * stack;
-	void (*entry)(void *);
-	void * val;
-};
-
 #include "thread_py.h"
 
 static
@@ -24,49 +18,52 @@ __attribute__((section(".debug_gdb_scripts")))
 const char thread_py[] =
 	"\x01" THREAD_PY_PATH "/thread.py";
 
+ThreadControlBlock idle_tcb = {};
+static ThreadControlBlock * current_tcb=nullptr;
 
-__attribute__((externally_visible))
-volatile Threads_sp global_threads_sp[CONFIG_MAX_THREADS] = {{(void *)1,nullptr,nullptr},};
-static volatile int current_tid;
-
-void bezbios_sched_switch_context(int nexttask)
+void bezbios_sched_switch_context(ThreadControlBlock * nexttask)
 {
 	asm volatile("cli");
 
-	int tid = current_tid;
-	current_tid = nexttask;
+	ThreadControlBlock* tid = current_tcb;
+	current_tcb = nexttask;
 
-	auto entry = global_threads_sp[current_tid].entry;
-	global_threads_sp[current_tid].entry = nullptr;
+	auto entry = current_tcb->entry;
+	current_tcb->entry = nullptr;
 
 	BezBios::Sched::m32ngro::
-	switchcontext_int(&global_threads_sp[tid].stack,global_threads_sp[nexttask].stack, entry,global_threads_sp[nexttask].val);
+	switchcontext_int(&tid->stack,current_tcb->stack, entry,current_tcb->val);
 }
 
-int bezbios_sched_get_tid()
+ThreadControlBlock * bezbios_sched_get_tid()
 {
-	return current_tid;
+	return current_tcb;
 }
 
-int bezbios_sched_create_task(void(*entry)(void*),void * stackbottom, void* val)
+bool bezbios_sched_is_idle()
 {
-	auto& gts = global_threads_sp;
-	for(long i = 0; i < CONFIG_MAX_THREADS ;i++)
-	{
-		if (gts[i].stack == nullptr)
-		{
-			gts[i].entry = entry;
-			gts[i].stack = stackbottom;
-			gts[i].val = val;
-			return i;
-		}
-	}
-	return -1;
+	return current_tcb == &idle_tcb;
 }
-void bezbios_sched_destroy_task(int tid)
+
+void bezbios_sched_idle_it_is()
 {
-	HWLOCK a;
-	bezbios_sched_task_ready(tid,0);
-	global_threads_sp[tid].stack = nullptr;
+	current_tcb = &idle_tcb;
+}
+
+void bezbios_sched_create_task(ThreadControlBlock * tid, void(*entry)(void*),void * stackbottom, void* val)
+{
+	if (current_tcb)
+		tid->plug(current_tcb, true);
+	else
+		current_tcb = tid;
+
+	tid->entry = entry;
+	tid->stack = stackbottom;
+	tid->val = val;
+}
+
+void bezbios_sched_destroy_task(ThreadControlBlock * tid)
+{
+	tid->stack = nullptr;
 }
 
