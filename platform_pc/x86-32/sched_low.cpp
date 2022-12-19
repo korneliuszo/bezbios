@@ -8,6 +8,7 @@
 
 #include <sched/bezbios_sched_api.h>
 #include "sched_low.h"
+#include "io.h"
 
 struct Threads_sp {
 	void * stack;
@@ -64,6 +65,7 @@ int bezbios_sched_create_task(void(*entry)(void*),void * stackbottom, void* val)
 }
 void bezbios_sched_destroy_task(int tid)
 {
+	HWLOCK a;
 	bezbios_sched_task_ready(tid,0);
 	global_threads_sp[tid].stack = nullptr;
 }
