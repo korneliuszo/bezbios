@@ -75,7 +75,7 @@ int bezbios_sched_sel_task(bool reschedule,int sel_tid)
 void bezbios_sched_exit(int tid)
 {
 	asm("cli");
-	bezbios_sched_task_ready(tid,0);
+	bezbios_sched_destroy_task(tid);
 	BezBios::Sched::mutex_list_head->destroy_task(tid);
 	BezBios::Sched::condition_variable_list_head->destroy_task(tid);
 	int wait_tid = rr_next_task();

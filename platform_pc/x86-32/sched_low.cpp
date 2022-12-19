@@ -64,6 +64,7 @@ int bezbios_sched_create_task(void(*entry)(void*),void * stackbottom, void* val)
 }
 void bezbios_sched_destroy_task(int tid)
 {
+	bezbios_sched_task_ready(tid,0);
 	global_threads_sp[tid].stack = nullptr;
 }
 
