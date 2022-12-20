@@ -40,18 +40,15 @@ static void PIT_IRQ(Isr_stack *)
 {
 	systick_msf +=systick_add;
 
-	if(delay_head)
+	long now = systick_msf >> 32;
+	while(delay_head != nullptr)
 	{
-		long now = systick_msf >> 32;
 		DelayList* newhead = delay_head;
-		for(newhead = delay_head;newhead != nullptr;newhead = delay_head)
-		{
-			if(newhead->timeout > now)
-				break;
-			bezbios_sched_task_ready(newhead->tcb,1);
-			delay_head = newhead->next;
-			newhead->unplug();
-		}
+		if(newhead->timeout > now)
+			break;
+		bezbios_sched_task_ready(newhead->tcb,1);
+		delay_head = newhead->next;
+		newhead->unplug();
 	}
 
 
@@ -82,19 +79,21 @@ void bezbios_delay_ms(int ms)
 
 	DelayList* newhead = delay_head;
 	DelayList* oldhead = nullptr;
-	for(newhead = delay_head;newhead != nullptr;newhead=newhead->next)
+	while(newhead != nullptr)
 	{
-		if(newhead->timeout > now)
+		if(newhead->timeout > timeout)
 			break;
 		oldhead = newhead;
+		newhead=newhead->next;
 	}
-	if(oldhead)
-		wait.plug(oldhead, true);
+	if(delay_head == newhead)
+	{
+		newhead->plug(&wait, true);
+		delay_head = &wait;
+	}
 	else
 	{
-		delay_head = &wait;
-		if(newhead)
-			newhead->plug(&wait,false);
+		wait.plug(oldhead, true);
 	}
 
 

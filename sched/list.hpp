@@ -18,8 +18,10 @@ public:
 		plug(obj,append);
 	}
 	void unplug(){
-		prev->next = next;
-		next->prev = prev;
+		if(prev)
+			prev->next = next;
+		if(next)
+			next->prev = prev;
 		next = nullptr;
 		prev = nullptr;
 	}
