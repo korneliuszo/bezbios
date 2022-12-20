@@ -66,13 +66,26 @@ int bezbios_sched_sel_task(bool reschedule,ThreadControlBlock * sel_tid)
 	return 0;
 }
 
+Exit_func * efunc_head = nullptr;
+
+void bezbios_sched_exit_func_reg(Exit_func * efunc)
+{
+	if(efunc_head)
+		efunc->plug(efunc_head,true);
+	else
+		efunc_head = efunc;
+}
+
+
 void bezbios_sched_exit(ThreadControlBlock * tid)
 {
 	asm("cli");
 	bezbios_sched_task_ready(tid,0);
 	bezbios_sched_destroy_task(tid);
-	BezBios::Sched::mutex_list_head->destroy_task(tid);
-	BezBios::Sched::condition_variable_list_head->destroy_task(tid);
+	for(Exit_func* efunc=efunc_head;efunc != nullptr;efunc=efunc->next)
+	{
+		efunc->func(tid);
+	}
 	ThreadControlBlock * wait_tid = rr_next_task();
 	bezbios_sched_switch_context(wait_tid);
 	return;

@@ -49,11 +49,19 @@ void BezBios::Sched::Mutex::destroy_task(ThreadControlBlock * tid)
 
 BezBios::Sched::Mutex * BezBios::Sched::mutex_list_head;
 
+static void mutex_head_exit(ThreadControlBlock * tid)
+{
+	BezBios::Sched::mutex_list_head->destroy_task(tid);
+}
+
+
 BezBios::Sched::Mutex::Mutex()
 {
 	ENTER_ATOMIC();
 	next=BezBios::Sched::mutex_list_head;
 	BezBios::Sched::mutex_list_head=this;
+	static Exit_func efunc = {mutex_head_exit};
+	(void)efunc;
 	EXIT_ATOMIC();
 
 }
@@ -118,11 +126,18 @@ void BezBios::Sched::ConditionVariable::destroy_task(ThreadControlBlock * tid)
 
 BezBios::Sched::ConditionVariable * BezBios::Sched::condition_variable_list_head;
 
+static void cv_head_exit(ThreadControlBlock * tid)
+{
+	BezBios::Sched::condition_variable_list_head->destroy_task(tid);
+}
+
 BezBios::Sched::ConditionVariable::ConditionVariable()
 {
 	ENTER_ATOMIC();
 	next=BezBios::Sched::condition_variable_list_head;
 	BezBios::Sched::condition_variable_list_head=this;
+	static Exit_func efunc = {cv_head_exit};
+	(void)efunc;
 	EXIT_ATOMIC();
 
 }

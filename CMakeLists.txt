@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17.0)
 cmake_policy(SET CMP0077 NEW)
 
 
-add_compile_options(-Wall -Wextra -pedantic -Werror -g -ffunction-sections -fdata-sections) 
+add_compile_options(-Wall -Wextra -pedantic -Werror -g -ffunction-sections -fdata-sections -fno-exceptions) 
 
 option(CONFIG_TGTPC "Target PC" ON)
 

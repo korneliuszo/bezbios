@@ -40,6 +40,20 @@ int bezbios_sched_sel_task(bool reschedule,ThreadControlBlock * sel_tid);
 ThreadControlBlock * rr_next_task();
 void bezbios_sched_exit(ThreadControlBlock * tid);
 
+class Exit_func;
+
+void bezbios_sched_exit_func_reg(Exit_func * efunc);
+
+class Exit_func : public List<Exit_func>
+{
+public:
+	Exit_func(void(*_func)(ThreadControlBlock * tid)) : List(false), func(_func){
+		bezbios_sched_exit_func_reg(this);
+	};
+	void(*func)(ThreadControlBlock * tid);
+};
+
+
 template<void(*fn)(void), long size>
 class BEZBIOS_CREATE_PROCESS
 {

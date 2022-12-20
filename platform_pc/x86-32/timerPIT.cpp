@@ -68,9 +68,22 @@ void init_PIT() {
 	bezbios_enable_irq(0);
 }
 
+static void timer_head_exit(ThreadControlBlock * tid)
+{
+	for (DelayList * head=delay_head;head!=nullptr;head=head->next)
+	{
+		if (head->tcb == tid)
+			head->unplug();
+	}
+}
+
+
 void bezbios_delay_ms(int ms)
 {
 	cli();
+	static Exit_func efunc = {timer_head_exit};
+	(void)efunc;
+
 	long now = bezbios_get_ms();
 	long timeout = now + ms;
 
