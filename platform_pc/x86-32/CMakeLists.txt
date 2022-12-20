@@ -64,3 +64,16 @@ set_source_files_properties(vm86.cpp PROPERTIES COMPILE_OPTIONS "-Wno-address-of
 target_compile_options(vm86 PRIVATE -fomit-frame-pointer)
 
 target_link_libraries(vm86 crt)
+
+add_library(e820
+	STATIC
+		e820.cpp
+)
+target_link_libraries(e820 vm86 sched_api)
+
+add_library(pci
+	STATIC
+		pci.cpp
+)
+target_link_libraries(pci e820 sched_api)
+
