@@ -136,29 +136,26 @@ public:
 class Mutex{
 private:
 	ThreadControlBlock * locked; //thread id, thread 0 cannot into mutexes
+	static void mutex_head_exit(ThreadControlBlock * tid);
+	static inline Mutex * mutex_list_head;
 	Mutex * next;
 	TCB_LIST wthreads;
 public:
 	void aquire();
 	void release();
-	void destroy_task(ThreadControlBlock * tid);
 	Mutex();
 };
 
-extern Mutex * mutex_list_head;
-
 class ConditionVariable{
-private:
+	static void cv_head_exit(ThreadControlBlock * tid);
 	ConditionVariable * next;
 	TCB_LIST wthreads;
+	static ConditionVariable * condition_variable_list_head;
 public:
 	bool notify_all();
 	void wait();
-	void destroy_task(ThreadControlBlock * tid);
 	ConditionVariable();
 };
-
-extern ConditionVariable * condition_variable_list_head;
 
 class ConditionVariableSingle{
 private:
