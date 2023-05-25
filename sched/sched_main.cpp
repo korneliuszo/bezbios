@@ -19,8 +19,9 @@ void bezbios_main(void);
 
 void bezbios_main()
 {
-	idle_tcb.plug(bezbios_sched_get_tid(), true);
+	bezbios_sched_create_task(&idle_tcb,nullptr,nullptr,nullptr);
 	bezbios_sched_idle_it_is();
+	bezbios_sched_task_ready(&idle_tcb,1); // idle ready means preemtive
 	while(1)
 	{
 		ThreadControlBlock * wait_tid;

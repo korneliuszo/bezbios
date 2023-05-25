@@ -18,7 +18,9 @@ __attribute__((section(".debug_gdb_scripts")))
 const char thread_py[] =
 	"\x01" THREAD_PY_PATH "/thread.py";
 
+
 ThreadControlBlock idle_tcb = {};
+
 static ThreadControlBlock * current_tcb=nullptr;
 
 void bezbios_sched_switch_context(ThreadControlBlock * nexttask)
@@ -42,7 +44,7 @@ ThreadControlBlock * bezbios_sched_get_tid()
 
 bool bezbios_sched_is_idle()
 {
-	return current_tcb == &idle_tcb;
+	return current_tcb == &idle_tcb || !idle_tcb.ready;
 }
 
 void bezbios_sched_idle_it_is()
@@ -52,10 +54,10 @@ void bezbios_sched_idle_it_is()
 
 void bezbios_sched_create_task(ThreadControlBlock * tid, void(*entry)(void*),void * stackbottom, void* val)
 {
-	if (current_tcb)
-		tid->plug(current_tcb, true);
-	else
+	if(!current_tcb)
 		current_tcb = tid;
+	else
+		tid->plug(current_tcb, false);
 
 	tid->entry = entry;
 	tid->stack = stackbottom;

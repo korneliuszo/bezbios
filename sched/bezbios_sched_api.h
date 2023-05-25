@@ -31,7 +31,6 @@ void bezbios_sched_idle_it_is();
 void bezbios_sched_create_task(ThreadControlBlock * tid, void (*entry)(void *), void *stackbottom, void * val);
 void bezbios_sched_destroy_task(ThreadControlBlock * tid);
 
-
 extern ThreadControlBlock idle_tcb;
 
 void bezbios_sched_task_ready(ThreadControlBlock * tid, bool is_ready);
@@ -144,6 +143,14 @@ public:
 	void aquire();
 	void release();
 	Mutex();
+};
+
+class MutexGuard {
+private:
+	Mutex & mut;
+public:
+	MutexGuard(Mutex & _mut) : mut(_mut) { mut.aquire();};
+	~MutexGuard(){mut.release();};
 };
 
 class ConditionVariable{
