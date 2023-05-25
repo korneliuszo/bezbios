@@ -9,6 +9,7 @@
 #define PLATFORM_PC_X86_32_E820_HPP_
 
 #include <stdint.h>
+#include "memreg.hpp"
 
 struct __attribute__ ((__packed__)) e820_data
 {
@@ -27,5 +28,6 @@ struct e820_ret
 
 e820_ret e820_call(uint32_t cont);
 
+Memory_pool e820_scan_hole(uint32_t minaddr,uint32_t maxaddr);
 
 #endif /* PLATFORM_PC_X86_32_E820_HPP_ */
