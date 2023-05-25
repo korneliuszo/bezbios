@@ -9,6 +9,7 @@ extern "C" {
 
 #include "tss.h"
 }
+#include "io.h"
 
 typedef struct
 {
@@ -42,7 +43,7 @@ static
 gdt_table_t gdt_table[] =
 {
 		{0,0,0,0,0,0}, //null descriptor
-		{
+		{ //0x08
 			GDT_LIMIT_LOW_4K(0xFFFFFFFF),
 			GDT_BASE_LOW(0x00000000),
 			GDT_BASE_MID(0x00000000),
@@ -51,7 +52,7 @@ gdt_table_t gdt_table[] =
 			GDT_GRANULARITY_4K_32,
 			GDT_BASE_HIGH(0x00000000)
 		}, //code descriptor
-		{
+		{ //0x10
 			GDT_LIMIT_LOW_4K(0xFFFFFFFF),
 			GDT_BASE_LOW(0x00000000),
 			GDT_BASE_MID(0x00000000),
@@ -60,7 +61,7 @@ gdt_table_t gdt_table[] =
 			GDT_GRANULARITY_4K_32,
 			GDT_BASE_HIGH(0x00000000)
 		}, //data descriptor
-		{
+		{ //0x18
 			GDT_LIMIT_LOW_1B(sizeof(TSS)-1),
 			0,
 			0,
@@ -69,13 +70,25 @@ gdt_table_t gdt_table[] =
 			0x40,
 			0,
 		}, //v86 TSS descriptor
-		{
+		{ //0x20
+
+		},
+		{ //0x28
+
+		},
+		{ //0x30
+
+		},
+		{ //0x38
+
+		},
+		{ //0x40
 
 		}, //APM 32bit code
-		{
+		{ //0x48
 
 		}, //APM 16bit code
-		{
+		{ //0x50
 
 		}, //APM 16bit data
 };
@@ -111,43 +124,43 @@ void tss_init(void)
 void apm_setup_gdt(unsigned long cs, unsigned long cs16, unsigned long ds16)
 {
 	//code
-	gdt_table[4].limit_low = GDT_LIMIT_LOW_1B(64*1024-1);
-	gdt_table[4].granularity = GDT_LIMIT_HIGH_1B(64*1024-1) | 0x40;
-    gdt_table[4].base_low = GDT_BASE_LOW((unsigned long)cs);
-    gdt_table[4].base_middle = GDT_BASE_MID((unsigned long)cs);
-    gdt_table[4].base_high = GDT_BASE_HIGH((unsigned long)cs);
-    gdt_table[4].access = GDT_ACCES_CXR_0;
+	gdt_table[8].limit_low = GDT_LIMIT_LOW_1B(64*1024-1);
+	gdt_table[8].granularity = GDT_LIMIT_HIGH_1B(64*1024-1) | 0x40;
+    gdt_table[8].base_low = GDT_BASE_LOW((unsigned long)cs);
+    gdt_table[8].base_middle = GDT_BASE_MID((unsigned long)cs);
+    gdt_table[8].base_high = GDT_BASE_HIGH((unsigned long)cs);
+    gdt_table[8].access = GDT_ACCES_CXR_0;
 	//code16
-	gdt_table[5].limit_low = GDT_LIMIT_LOW_1B(64*1024-1);
-	gdt_table[5].granularity = GDT_LIMIT_HIGH_1B(64*1024-1);
-    gdt_table[5].base_low = GDT_BASE_LOW((unsigned long)cs16);
-    gdt_table[5].base_middle = GDT_BASE_MID((unsigned long)cs16);
-    gdt_table[5].base_high = GDT_BASE_HIGH((unsigned long)cs16);
-    gdt_table[5].access = GDT_ACCES_CXR_0;
+	gdt_table[9].limit_low = GDT_LIMIT_LOW_1B(64*1024-1);
+	gdt_table[9].granularity = GDT_LIMIT_HIGH_1B(64*1024-1);
+    gdt_table[9].base_low = GDT_BASE_LOW((unsigned long)cs16);
+    gdt_table[9].base_middle = GDT_BASE_MID((unsigned long)cs16);
+    gdt_table[9].base_high = GDT_BASE_HIGH((unsigned long)cs16);
+    gdt_table[9].access = GDT_ACCES_CXR_0;
     //data
-	gdt_table[6].limit_low = GDT_LIMIT_LOW_1B(64*1024-1);
-	gdt_table[6].granularity = GDT_LIMIT_HIGH_1B(64*1024-1);
-    gdt_table[6].base_low = GDT_BASE_LOW((unsigned long)ds16);
-    gdt_table[6].base_middle = GDT_BASE_MID((unsigned long)ds16);
-    gdt_table[6].base_high = GDT_BASE_HIGH((unsigned long)ds16);
-    gdt_table[6].access = GDT_ACCES_DRW_0;
+	gdt_table[10].limit_low = GDT_LIMIT_LOW_1B(64*1024-1);
+	gdt_table[10].granularity = GDT_LIMIT_HIGH_1B(64*1024-1);
+    gdt_table[10].base_low = GDT_BASE_LOW((unsigned long)ds16);
+    gdt_table[10].base_middle = GDT_BASE_MID((unsigned long)ds16);
+    gdt_table[10].base_high = GDT_BASE_HIGH((unsigned long)ds16);
+    gdt_table[10].access = GDT_ACCES_DRW_0;
 
-	asm volatile("cli");
+    ENTER_ATOMIC();
     asm volatile("lgdt %P0 " :  : "i"(&gdt_pointer): "memory");
     asm volatile(
     		"jmp $0x08,$1f\n\t"
     		"1:");
-    asm volatile("sti");
-
+    EXIT_ATOMIC();
 }
 
 void tss_clear_busy(void)
 {
-	asm volatile("cli");
+    ENTER_ATOMIC();
+
 	gdt_table[3].access &= 0xfd;
     asm volatile("lgdt %P0 " :  : "i"(&gdt_pointer): "memory");
     asm volatile(
     		"jmp $0x08,$tss_clear_jmp\n\t"
     		"tss_clear_jmp:");
-    asm volatile("sti");
+    EXIT_ATOMIC();
 }

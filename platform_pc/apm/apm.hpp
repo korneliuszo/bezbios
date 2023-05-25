@@ -11,6 +11,7 @@
 class APM {
 	bool call(unsigned short a, unsigned short b, unsigned short c);
 	unsigned long offset;
+	bool working;
 	public:
 	APM();
 	void shutdown(void);
