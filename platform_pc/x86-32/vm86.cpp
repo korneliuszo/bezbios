@@ -131,7 +131,7 @@ bool vm86_handle_gpf(Error_stack *frame)
     	vmm86_return->di = frame->edi;
     	vmm86_return->bp = frame->ebp;
     	vmm86_return->eflags = frame->eflags;
-    	asm("jmp vmx86_ret"::: "memory");
+    	asm volatile("jmp vmx86_ret"::: "memory");
     	break;
     }
     case 0x66: //OPERAND_SIZE_PREFIX
@@ -277,8 +277,8 @@ static void callx86_nomut(const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentReg
 
 	vm86_init_stackptr = run->stack.offset;
 
-    asm(
-    		"pushf\n\t"
+    asm volatile(
+    		"pushfl\n\t"
     		"cli\n\t"
     		"movl %%esp, (%P[vmm86_sp])\n\t"
 
