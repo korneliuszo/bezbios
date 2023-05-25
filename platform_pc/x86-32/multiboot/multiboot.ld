@@ -8,7 +8,7 @@ ENTRY(_start)
 
 MEMORY
 {
-    LO_RAM (wx) : ORIGIN = 40k, LENGTH = 600k
+    LO_RAM (wx) : ORIGIN = 40k, LENGTH = 472k
     RAM (wx) : ORIGIN = 1M, LENGTH = 1M
 }
 
