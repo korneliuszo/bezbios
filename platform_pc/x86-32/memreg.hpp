@@ -23,6 +23,7 @@ public:
 };
 
 class Memory_pool {
+public:
 	void *addr;
 	unsigned long len;
 	Memory_region * first;
@@ -46,7 +47,7 @@ class Memory_pool {
 				after_space = (unsigned long) newhead->addr + newhead->len;
 				after_aligned = (after_space + mask) & (~mask);
 				if (!newhead->next
-						&& after_aligned + rlen > (unsigned long) addr + len)
+						&& after_aligned + rlen - len > (unsigned long) addr + len)
 					return false;
 				if (after_aligned + rlen < (unsigned long) newhead->next->addr)
 					break;
