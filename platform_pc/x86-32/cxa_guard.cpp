@@ -27,11 +27,13 @@ extern "C" int __cxa_guard_acquire(uint64_t * guard_object)
 	{
 		return 0;
 	}
-	init_mutex.aquire();
+	if(idle_tcb.ready) // in preemtive
+		init_mutex.aquire();
 
 	if(init_has_run(guard_object))
 	{
-		init_mutex.release();
+		if(idle_tcb.ready) // in preemtive
+			init_mutex.release();
 		return 0;
 	}
 
@@ -41,5 +43,6 @@ extern "C" int __cxa_guard_acquire(uint64_t * guard_object)
 extern "C" void __cxa_guard_release(uint64_t * guard_object) {
 
 	set_init_has_run(guard_object);
-	init_mutex.release();
+	if(idle_tcb.ready) // in preemtive
+		init_mutex.release();
 }
