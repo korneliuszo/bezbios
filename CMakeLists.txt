@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17.0)
 cmake_policy(SET CMP0077 NEW)
 
 
-add_compile_options(-Wall -Wextra -pedantic -Werror -g -ffunction-sections -fdata-sections -fno-exceptions) 
+add_compile_options(-Wall -Wextra -pedantic -Werror -g -ffunction-sections -fdata-sections -fno-exceptions  $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>) 
 
 option(CONFIG_TGTPC "Target PC" ON)
 
@@ -22,4 +22,5 @@ if(PROJECT_IS_TOP_LEVEL)
 add_subdirectory(main)
 add_subdirectory(task_low_test)
 add_subdirectory(loader)
+add_subdirectory(pcmciatest)
 endif()
