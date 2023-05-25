@@ -71,9 +71,20 @@ add_library(e820
 )
 target_link_libraries(e820 vm86 sched_api)
 
+add_library(bios32
+	STATIC
+		bios32.cpp
+)
+target_link_libraries(bios32)
+
 add_library(pci
 	STATIC
 		pci.cpp
 )
-target_link_libraries(pci e820 sched_api)
+target_link_libraries(pci bios32 e820 sched_api)
 
+add_library(yenta
+	STATIC
+		yenta_socket.cpp
+)
+target_link_libraries(yenta pci sched_api)
