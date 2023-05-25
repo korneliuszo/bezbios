@@ -15,6 +15,7 @@ extern "C"
 
 void bezbios_serial_bootup_init();
 void bezbios_low_write_serial(char a);
+void bezbios_low_wait();
 
 #ifdef __cplusplus
 }

@@ -27,3 +27,7 @@ void bezbios_low_write_serial(char a) {
    outb(PORT,a);
 }
 
+void bezbios_low_wait()
+{
+	while ((inb(PORT + 5) & 0x20) == 0);
+}

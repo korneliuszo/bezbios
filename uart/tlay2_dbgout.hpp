@@ -25,6 +25,7 @@ public:
 	}
 	void end()
 	{
+		bezbios_low_wait();
 		sti(ss);
 	}
 	UartBlocking() : ss(0) {};
