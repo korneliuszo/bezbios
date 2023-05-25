@@ -290,7 +290,9 @@ static void callx86_nomut(const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentReg
 
     		"pushfl\n\t" // NT flag should be disabled
     		".cfi_adjust_cfa_offset 4\n\t"
-    		"btr %%esp, 14\n\t"
+    		"movl (%%esp), %%eax\n\t"
+    		"btr $14,%%eax\n\t"
+    		"movl %%eax, (%%esp)\n\t"
     		"popfl\n\t"
     		".cfi_adjust_cfa_offset -4\n\t"
 
