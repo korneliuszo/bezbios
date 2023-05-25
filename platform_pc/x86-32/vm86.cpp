@@ -18,8 +18,11 @@ static unsigned char vm86_isr[] = { 0xcd, 0x48, 0xf4};	/* int 48h; hlt	*/
 //static unsigned char vm86_isr[] = { 0xEB, 0xFE, 0xF4 };	/* busyloop, hlt	*/
 //static unsigned char vm86_isr[] = { 0xF4 };	/*hlt	*/
 
-static BezBios::Sched::Mutex vmm86_mutex;
-
+static BezBios::Sched::Mutex& vmm86_mutex()
+{
+	static BezBios::Sched::Mutex vmm86_mutex;
+	return vmm86_mutex;
+}
 __attribute__((section(".loram_stack")))
 static unsigned char vm86_stack[4096];
 
@@ -363,7 +366,7 @@ static void callx86_nomut(const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentReg
 
 void callx86int(unsigned char isr, const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentRegisters *seg)
 {
-	vmm86_mutex.aquire();
+	vmm86_mutex().aquire();
 	vm86_isr[1] = isr;
 
 	VM86RUNPARAMS rparm;
@@ -378,7 +381,7 @@ void callx86int(unsigned char isr, const Vmm86Regs * in, Vmm86Regs * out, Vmm86S
 	vm86_ie = eflags & (1<<9);
 	callx86_nomut(in,out,seg,&rparm);
 
-	vmm86_mutex.release();
+	vmm86_mutex().release();
 }
 
 __attribute__((used))
@@ -387,7 +390,7 @@ static unsigned char vm86_lc[] = { 0x9a,0x00,0x00,0x00,0x00, 0xf4};	/* far call;
 
 void callx86ptr(LONGADDR entry, const Vmm86Regs * in, Vmm86Regs * out, Vmm86SegmentRegisters *seg, unsigned short stack[8])
 {
-	vmm86_mutex.aquire();
+	vmm86_mutex().aquire();
 
 	vm86_lc[1] = entry.offset;
 	vm86_lc[2] = entry.offset>>8;
@@ -411,5 +414,5 @@ void callx86ptr(LONGADDR entry, const Vmm86Regs * in, Vmm86Regs * out, Vmm86Segm
 	vm86_ie = eflags & (1<<9);
 	callx86_nomut(in,out,seg,&rparm);
 
-	vmm86_mutex.release();
+	vmm86_mutex().release();
 }
