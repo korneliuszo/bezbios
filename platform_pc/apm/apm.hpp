@@ -9,7 +9,7 @@
 #define PLATFORM_PC_APM_APM_HPP_
 
 class APM {
-	bool call(unsigned short a, unsigned short b, unsigned short c);
+	bool call(unsigned long a, unsigned long b, unsigned long c);
 	unsigned long offset;
 	bool working;
 	public:

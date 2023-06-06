@@ -26,11 +26,12 @@ APM::APM()
 		return;
 	apm_setup_gdt(out.ax<<4,out.cx<<4,out.dx<<4);
 	offset=out.bx;
-	call(0x530e,0,0x0101);
+	call(0x5303,0,0); // now really connect
+	call(0x530e,0,0x0102);
 	working = true;
 }
 
-bool APM::call(unsigned short a, unsigned short b, unsigned short c)
+bool APM::call(unsigned long a, unsigned long b, unsigned long c)
 {
 	bool ret;
 	ENTER_ATOMIC();
@@ -39,13 +40,14 @@ bool APM::call(unsigned short a, unsigned short b, unsigned short c)
 		unsigned short segment;
 	} bios32_indirect = { 0, 0x40 };
 	bios32_indirect.address = offset;
+	bios32_indirect.segment = 0x40;
 	asm volatile (
 			"lcall *(%p[ptr])\n\t"
 	:
 	  "=@ccc"(ret)
-	: "ax"(a),
-	  "bx"(b),
-	  "cx"(c),
+	: "a"(a),
+	  "b"(b),
+	  "c"(c),
 	  [ptr]"i"(&bios32_indirect) : "memory"
 	);
 	EXIT_ATOMIC();
