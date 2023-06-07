@@ -40,7 +40,7 @@ void third()
 	}
 
  }
-static BEZBIOS_CREATE_PROCESS<third,4096> third_thread;
+BEZBIOS_CREATE_PROCESS<third,14096> third_thread = {};
 
 
 static long monitor_shutdown(unsigned char [],long)

@@ -15,4 +15,4 @@ static void tlay2_uart_entry()
 	tlay2_uart.process();
 }
 
-static BEZBIOS_CREATE_PROCESS<tlay2_uart_entry,4096> tlay2_uart_task;
+static BEZBIOS_CREATE_PROCESS<tlay2_uart_entry,10096> tlay2_uart_task;

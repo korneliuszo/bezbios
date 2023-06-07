@@ -74,7 +74,7 @@ SECTIONS
 	.stack BLOCK(64K) (NOLOAD) : ALIGN(4K)
 	{
     PROVIDE (__stack_start = .) ;
-		. = . + 4K;
+		. = . + 10K;
 	PROVIDE (__stack_end = .) ;
 		
 	} > RAM
