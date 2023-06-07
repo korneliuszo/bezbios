@@ -153,7 +153,9 @@ bool Pci::link_irq(const Pci_no & dev,uint8_t intline)
 	bios32_indirect.address=pci32_entry;
 	bios32_indirect.segment = 0x08;
 
-	asm volatile("lcall *(%p[entry])\n\t cld\n\t"
+	asm volatile(
+		"int $3\n\t"
+		"lcall *(%p[entry])\n\t cld\n\t"
 		"jc 1f\n\t"
 		"xor %%ah, %%ah\n"
 		"1:"
