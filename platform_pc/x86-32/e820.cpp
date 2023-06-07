@@ -40,7 +40,7 @@ e820_ret e820_call(uint32_t cont)
 
 Memory_pool e820_scan_hole(uint32_t minaddr,uint32_t maxaddr)
 {
-	Memory_pool ret;
+	Memory_pool ret={};
 
 	uint32_t cont = 0;
 	uint32_t startaddr= 0;
