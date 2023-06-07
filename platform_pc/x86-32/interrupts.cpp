@@ -13,7 +13,7 @@ static ByteIO<0x21> PIC1_DAT;
 static ByteIO<0xA0> PIC2_CMD;
 static ByteIO<0xA1> PIC2_DAT;
 
-struct __attribute__((packed)) IDTDescr {
+struct __attribute__((packed, aligned(8))) IDTDescr {
    volatile unsigned short offset_1; // offset bits 0..15
    volatile unsigned short selector; // a code segment selector in GDT or LDT
    volatile unsigned char zero;      // unused, set to 0
