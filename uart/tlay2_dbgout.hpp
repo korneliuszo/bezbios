@@ -18,6 +18,7 @@ public:
 	void start()
 	{
 		ss = cli();
+		sendbyte('\n');
 	}
 	void sendbyte(unsigned char byte)
 	{
