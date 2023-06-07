@@ -43,6 +43,7 @@ target_link_libraries(sched sched_api crt)
 add_library(interrupts
 	STATIC
 		interrupts.cpp
+		int3.cpp
 		timerPIT.cpp
 )
 

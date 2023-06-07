@@ -74,6 +74,7 @@ struct __attribute__((packed)) Isr_stack {
 static_assert(sizeof(Isr_stack) == 60, "Verifying size failed!");
 
 void gpfC (struct Error_stack *frame);
+void int3isr(Isr_stack *stack);
 void bezbios_irq_handler(void) __attribute__((naked));
 void bezbios_irq_C_handler(Isr_stack *stack) __attribute__((cdecl));
 
@@ -130,6 +131,5 @@ public:
 */
 
 void register_isr(int irq,void(*fn)(Isr_stack*));
-
 
 #endif /* PLATFORM_PC_X86_32_INTERRUPTS_H_ */
