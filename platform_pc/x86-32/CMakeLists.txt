@@ -23,6 +23,7 @@ add_library(sched STATIC sched_low.cpp)
 
 target_sources(sched PRIVATE sched_asm.cc)
 target_compile_options(sched PRIVATE -fomit-frame-pointer)
+set_source_files_properties(sched_asm.cc PROPERTIES COMPILE_OPTIONS "-Wa,-adhln=${CMAKE_CURRENT_BINARY_DIR}/sched_asm.cc.lst")
 set_property(TARGET sched
              PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
 
