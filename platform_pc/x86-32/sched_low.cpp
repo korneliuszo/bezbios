@@ -12,6 +12,8 @@
 
 #include "thread_py.h"
 
+#include <uart/tlay2_dbgout.hpp>
+
 static
 __attribute__((used))
 __attribute__((section(".debug_gdb_scripts")))
@@ -54,6 +56,10 @@ void bezbios_sched_idle_it_is()
 
 void bezbios_sched_create_task(ThreadControlBlock * tid, void(*entry)(void*),void * stackbottom, void* val)
 {
+	{
+		DbgOut<UartBlocking> sender;
+		sender.str("TASK STACK AT ").hex((long)stackbottom).end();
+	}
 	if(!current_tcb)
 		current_tcb = tid;
 	else

@@ -52,6 +52,8 @@ YentaSocket::YentaSocket() : drv(), base_addr()
 		cmd|=(1<<1); //memory IO
 		drv.address.set_reg(0x4,cmd);
 
+		sender.str("Yenta alloc").hex((uint32_t)base_addr.get_addr()).end();
+
 		drv.address.set_reg(0x10,(uint32_t)base_addr.get_addr());
 
 		volatile yenta_regs *regs = (volatile yenta_regs *)base_addr.get_addr();
