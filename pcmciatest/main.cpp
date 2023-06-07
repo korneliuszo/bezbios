@@ -17,9 +17,6 @@
 #include <apm.hpp>
 #include <yenta_socket.hpp>
 
-YentaSocket sock1;
-YentaSocket sock2;
-
 int second_stack[4096];
 
 static BEZBIOS_INIT_PIT delay_implementation;
@@ -32,6 +29,9 @@ struct Tlay2Payloads tlay2_payloads[] = {
 
 void third()
  {
+	static YentaSocket sock1;
+	static YentaSocket sock2;
+
 	//char leters[]="Bios\n";
 	while(1)
 	{
