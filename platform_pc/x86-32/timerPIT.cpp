@@ -81,8 +81,8 @@ static void timer_head_exit(ThreadControlBlock * tid)
 void bezbios_delay_ms(int ms)
 {
 	cli();
-	static Exit_func efunc = {timer_head_exit};
-	(void)efunc;
+	static Exit_func efunc;
+	efunc.init(timer_head_exit);
 
 	long now = bezbios_get_ms();
 	long timeout = now + ms;

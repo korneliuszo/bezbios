@@ -46,10 +46,15 @@ void bezbios_sched_exit_func_reg(Exit_func * efunc);
 class Exit_func : public List<Exit_func>
 {
 public:
-	Exit_func(void(*_func)(ThreadControlBlock * tid)) : List(false), func(_func){
+	Exit_func() : List(false) {};
+	void init(void(*_func)(ThreadControlBlock * tid))
+	{
+		if(func)
+			return;
+		func = _func;
 		bezbios_sched_exit_func_reg(this);
-	};
-	void(*func)(ThreadControlBlock * tid);
+	}
+	void(*func)(ThreadControlBlock * tid) = nullptr;
 };
 
 
@@ -134,16 +139,19 @@ public:
 
 class Mutex{
 private:
-	ThreadControlBlock * locked; //thread id, thread 0 cannot into mutexes
+	ThreadControlBlock * volatile locked; //thread id, thread 0 cannot into mutexes
 	static void mutex_head_exit(ThreadControlBlock * tid);
 	static inline Mutex * mutex_list_head;
 	Mutex * next;
 	TCB_LIST wthreads;
+	volatile int lock_cnt;
+	Exit_func efunc;
 public:
 	void aquire();
 	void release();
 	Mutex();
 };
+
 
 class MutexGuard {
 private:
@@ -158,6 +166,7 @@ class ConditionVariable{
 	ConditionVariable * next;
 	TCB_LIST wthreads;
 	static ConditionVariable * condition_variable_list_head;
+	Exit_func efunc;
 public:
 	bool notify_all();
 	void wait();

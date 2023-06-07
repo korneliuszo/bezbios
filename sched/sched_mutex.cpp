@@ -10,6 +10,12 @@
 
 void BezBios::Sched::Mutex::aquire() {
 	ENTER_ATOMIC();
+	if(locked == bezbios_sched_get_tid())
+	{
+		lock_cnt++;
+		EXIT_ATOMIC();
+		return;
+	}
 	while (locked) {
 		{
 			TCB_LIST wait = {&wthreads};
@@ -20,10 +26,16 @@ void BezBios::Sched::Mutex::aquire() {
 		asm("cli":::"memory");
 	}
 	locked = bezbios_sched_get_tid();
+	lock_cnt++;
 	EXIT_ATOMIC();
 }
 void BezBios::Sched::Mutex::release() {
 	ENTER_ATOMIC();
+	if(--lock_cnt)
+	{
+		EXIT_ATOMIC();
+		return;
+	}
 	locked = nullptr;
 	if(wthreads.prev != &wthreads)
 	{
@@ -54,8 +66,8 @@ BezBios::Sched::Mutex::Mutex()
 	ENTER_ATOMIC();
 	next=mutex_list_head;
 	mutex_list_head=this;
-	static Exit_func efunc = {mutex_head_exit};
-	(void)efunc;
+	lock_cnt = 0;
+	efunc.init(mutex_head_exit);
 	EXIT_ATOMIC();
 
 }
@@ -123,8 +135,7 @@ BezBios::Sched::ConditionVariable::ConditionVariable()
 	ENTER_ATOMIC();
 	next=condition_variable_list_head;
 	condition_variable_list_head=this;
-	static Exit_func efunc = {cv_head_exit};
-	(void)efunc;
+	efunc.init(cv_head_exit);
 	EXIT_ATOMIC();
 
 }
