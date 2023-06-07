@@ -74,7 +74,8 @@ unsigned long BIOS32::get_service_entry(uint32_t service)
 		  "=d" (entry)
 		: "0" (service),
 		  "1" (0),
-		  [entry] "i" (&bios32_indirect));
+		  [entry] "i" (&bios32_indirect)
+		: "esi", "edi");
 	EXIT_ATOMIC();
 
 	if(return_code)

@@ -28,6 +28,10 @@ APM::APM()
 	offset=out.bx;
 	call(0x5303,0,0); // now really connect
 	call(0x530e,0,0x0102);
+
+	DbgOut<UartBlocking> sender;
+	sender.str("APM initialized").end();
+
 	working = true;
 }
 
@@ -42,13 +46,13 @@ bool APM::call(unsigned long a, unsigned long b, unsigned long c)
 	bios32_indirect.address = offset;
 	bios32_indirect.segment = 0x40;
 	asm volatile (
-			"lcall *(%p[ptr])\n\t"
+			"lcall *(%p[ptr])\n\t cld\n\t"
 	:
 	  "=@ccc"(ret)
 	: "a"(a),
 	  "b"(b),
 	  "c"(c),
-	  [ptr]"i"(&bios32_indirect) : "memory"
+	  [ptr]"i"(&bios32_indirect) : "memory", "edx", "esi","edi"
 	);
 	EXIT_ATOMIC();
 	return ret;

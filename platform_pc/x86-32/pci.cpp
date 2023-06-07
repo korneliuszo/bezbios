@@ -23,13 +23,18 @@ Pci & Pci::get_handle()
 
 bool Pci::pci_support()
 {
+	{
+		DbgOut<UartBlocking> sender;
+		sender.str("PCI support").end();
+	}
 	uint32_t signature, eax, ebx, ecx;
-	ENTER_ATOMIC();
-
 	static struct {
 		unsigned long address;
 		unsigned short segment;
 	} bios32_indirect;
+
+	{
+	ENTER_ATOMIC();
 
 	bios32_indirect.address=pci32_entry;
 	bios32_indirect.segment = 0x8;
@@ -43,9 +48,10 @@ bool Pci::pci_support()
 		  "=b" (ebx),
 		  "=c" (ecx)
 		: "1" (0xb101),
-		  [entry] "i" (&bios32_indirect));
+		  [entry] "i" (&bios32_indirect)
+		: "esi","edi");
 	EXIT_ATOMIC();
-
+	}
 	uint8_t status = (eax >> 8) & 0xff;
 
 	if(signature != (('P' << 0) + ('C' << 8) + ('I' << 16) + (' ' << 24)))
@@ -66,7 +72,10 @@ bool Pci::pci_support()
 
 		ENTER_ATOMIC();
 
-		asm("push %%es\n\t"
+		bios32_indirect.address=pci32_entry;
+		bios32_indirect.segment = 0x8;
+
+		asm ("push %%es\n\t"
 			"push %%ds\n\t"
 			"pop  %%es\n\t"
 			"lcall *(%p[entry])\n\t cld\n\t"
@@ -77,11 +86,11 @@ bool Pci::pci_support()
 			: "=a" (eax),
 			  "=b" (ebx),
 			  "=c" (ecx)
-			: "0" (0xb10e),
+			: "D" (&pirt),
+			  "0" (0xb10e),
 			  "1" (0),
-			  "D" (&pirt),
 			  [entry] "i" (&bios32_indirect)
-			: "memory");
+			: "edx", "esi", "memory");
 		EXIT_ATOMIC();
 
 		DbgOut<UartBlocking> sender;
@@ -144,7 +153,7 @@ bool Pci::link_irq(const Pci_no & dev,uint8_t intline)
 	bios32_indirect.address=pci32_entry;
 	bios32_indirect.segment = 0x08;
 
-	asm("lcall *(%p[entry])\n\t cld\n\t"
+	asm volatile("lcall *(%p[entry])\n\t cld\n\t"
 		"jc 1f\n\t"
 		"xor %%ah, %%ah\n"
 		"1:"
@@ -152,7 +161,8 @@ bool Pci::link_irq(const Pci_no & dev,uint8_t intline)
 		: "0" (0xb10f),
 		  "b" ((dev.bus<<8) | (dev.slot<<3) | (dev.func)),
 		  "c" ((PCI_IRQ<<8)|(intline+10)),
-		  [entry] "i" (&bios32_indirect));
+		  [entry] "i" (&bios32_indirect)
+		  :"edx", "esi","edi");
 	EXIT_ATOMIC();
 
 	DbgOut<UartBlocking> sender;

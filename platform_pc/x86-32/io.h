@@ -99,7 +99,7 @@ static inline unsigned long getflags()
              "pushf ; pop %0"
              : "=rm" (ret)
              : /* no input */
-             : "memory");
+             : "cc", "memory");
 	return ret;
 }
 
