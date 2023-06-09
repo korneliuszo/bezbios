@@ -45,6 +45,7 @@ add_library(interrupts
 		interrupts.cpp
 		int3.cpp
 		timerPIT.cpp
+		dbg.cpp
 )
 
 

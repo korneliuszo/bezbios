@@ -212,6 +212,8 @@ void bezbios_irq_C_handler(Isr_stack *stack)
 {
 	if (stack->irq < 16)
 		irq_handler[stack->irq](stack);
+	else if (stack->irq == 0x0101)
+		int1isr(stack);
 	else if (stack->irq == 0x0103)
 		int3isr(stack);
 }
@@ -263,6 +265,7 @@ void bezbios_init_interrupts(void)
 
 	bezbios_irq_idt(0x0D,ISR<Error_stack,0x0D>::fn);
 	bezbios_irq_idt(3,ISR<Isr_stack,0x0103>::fn);
+	bezbios_irq_idt(1,ISR<Isr_stack,0x0101>::fn);
 
 	asm volatile("lidt (%0) " :  : "r"(&idt_seg));
 	asm volatile("sti"); //now we can start interrupts

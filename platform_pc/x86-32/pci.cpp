@@ -10,7 +10,7 @@
 #include "vm86.hpp"
 #include "bios32.hpp"
 #include "io.h"
-
+#include "dbg.hpp"
 #include <uart/tlay2_dbgout.hpp>
 
 static constexpr uint8_t PCI_IRQ = 10;
@@ -95,6 +95,7 @@ bool Pci::pci_support()
 
 		DbgOut<UartBlocking> sender;
 
+		sender.str("PCI ").hex(pci32_entry).end();
 		sender.str("PCI ").hex(eax).end();
 		sender.str("PCI ").hex(ebx).end();
 
@@ -153,8 +154,10 @@ bool Pci::link_irq(const Pci_no & dev,uint8_t intline)
 	bios32_indirect.address=pci32_entry;
 	bios32_indirect.segment = 0x08;
 
+	install_bp1((void*)0xfdcc4UL);
+
+
 	asm volatile(
-		"int $3\n\t"
 		"lcall *(%p[entry])\n\t cld\n\t"
 		"jc 1f\n\t"
 		"xor %%ah, %%ah\n"
