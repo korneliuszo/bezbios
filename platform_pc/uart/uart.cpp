@@ -12,6 +12,7 @@
 #include <sched/bezbios_sched_api.h>
 #include <uart/fifo.h>
 
+[[gnu::used]]
 static BEZBIOS_INIT_SERIAL serial_port;
 
 constexpr unsigned short PORT = 0x3F8;
@@ -41,7 +42,8 @@ static BezBios::Sched::ConditionVariableSingle tx_cv;
 static void UART_IRQ(Isr_stack *)
 {
 	unsigned char IIR_cached = IIR;
-
+	ThreadControlBlock * txcvthread = nullptr;
+	ThreadControlBlock * rxcvthread = nullptr;
 	if((IIR_cached & 0x1))
 	{
 		bezbios_int_ack(INT);
@@ -49,6 +51,7 @@ static void UART_IRQ(Isr_stack *)
 	}
 	do
 	{
+	bezbios_int_ack(INT);
 	switch(IIR_cached&0x0E)
 	{
 	case 0x02: //transmit empty
@@ -61,49 +64,48 @@ static void UART_IRQ(Isr_stack *)
 			  }
 			  else
 			  {
-				  IER &= ~0x02;
-				  break;
+				IER &= ~0x02;
+				break;
 			  }
 		  }
-		  tx_cv.notify();
+		  {	
+			  auto tmp = tx_cv.notify();
+			  if(tmp)
+		  	  txcvthread = tmp;
+		  }
 		  break;
 	case 0x04: //recv threshold
 	case 0x0C: //timeout
-		  while (LSR & 0x01)
+		while ((LSR & 0x01) && (fifo_check(&serial_rx) < FIFO_SIZE-1))
+		{
+		  if(fifo_check(&serial_rx) == FIFO_SIZE-2 )
 		  {
-			  while(fifo_check(&serial_rx) > FIFO_SIZE-5)
-			  {
-				  ThreadControlBlock * rx_tid;
-				  if((rx_tid = rx_cv.notify()))
-				  {
-					  bezbios_disable_irq(INT);
-					  bezbios_int_ack(INT);
-					  bezbios_sched_sel_task(1,rx_tid);
-					  cli();
-					  bezbios_enable_irq(INT);
-				  }
-				  else
-					  break;
-			  }
-			  if(fifo_check(&serial_rx) == FIFO_SIZE-1)
-			  {
-						  char drop = RBR;
-						  drop = drop;
-						  goto drop_char;
-			  }
-			  fifo_put(&serial_rx,RBR);
-			  drop_char:;
+			IER &= ~0x01;
 		  }
-		  rx_cv.notify();
-		  break;
+		  //else
+		  {
+			  char tm = RBR;
+			  fifo_put(&serial_rx,tm);
+		  }
+		}
+		{	
+			auto tmp = rx_cv.notify();
+			if(tmp)
+		  	  rxcvthread = tmp;
+		}
+		break;
 	}
 	IIR_cached = IIR;
 	} while(!(IIR_cached & 0x1));
-	bezbios_int_ack(INT);
+	if(txcvthread)
+		bezbios_sched_sel_task(1,txcvthread);
+	if(rxcvthread)
+		bezbios_sched_sel_task(1,rxcvthread);
+
 }
 
 void bezbios_serial_init() {
-	IER = 0x00; // Disable all interrupts
+	IER = 0x00;    // Disable all interrupts
 	LCR = 0x80;    // Enable DLAB (set baud rate divisor)
 	DLL = 0x03;    // Set divisor to 3 (lo byte) 38400 baud
 	DLH = 0x00;    //                  (hi byte)
@@ -117,37 +119,43 @@ void bezbios_serial_init() {
 
 
 void bezbios_serial_send(unsigned char byte) {
+	ENTER_ATOMIC();
 	while(true)
 	{
-		ENTER_ATOMIC();
-
-		bool brk = fifo_put(&serial_tx,byte);
-		IER |= 0x02;
-		if (LSR & 0x20)
+		bool cont = fifo_check(&serial_tx);
+		bool brk = fifo_put(&serial_tx,byte);		
+		if(!cont)
 		{
 			unsigned char c=0;
 			fifo_get(&serial_tx,&c);
+			IER |= 0x02;
 			THR = c;
 		}
 		if (brk)
 		{
-			EXIT_ATOMIC();
 			break;
 		}
 		tx_cv.wait();
 	}
+	EXIT_ATOMIC();
 }
 unsigned char bezbios_serial_recv() {
 	unsigned char c;
+	ENTER_ATOMIC();
 	while(true)
 	{
-		ENTER_ATOMIC();
-		if(fifo_get(&serial_rx,&c))
+		bool get = fifo_get(&serial_rx,&c);
+		//bool chk = (fifo_check(&serial_rx) < FIFO_SIZE-2 );		
+		if(!(IER&0x01))
 		{
-			EXIT_ATOMIC();
+			IER |= 0x01;
+		}
+		if(get)
+		{
 			break;
 		}
 		rx_cv.wait();
 	}
+	EXIT_ATOMIC();
 	return c;
 }

@@ -46,39 +46,8 @@ static inline void outl(unsigned short port,unsigned long val)
 
 static inline void io_wait(unsigned char point)
 {
-    asm volatile ( "outb %0, $0x80" : : "a"(point) );
+    asm volatile ( "outb %0, $0x81" : : "a"(point) );
 }
-
-#ifdef __cplusplus
-
-template
-<unsigned short PORT_OUT, unsigned short PORT_IN = PORT_OUT>
-class ByteIO {
-public:
-	operator unsigned char() const
-	{
-		return inb(PORT_IN);
-	}
-	unsigned char operator =(const unsigned char& byte)
-	{
-		outb(PORT_OUT,byte);
-		return byte;
-	}
-	unsigned char operator |=(const unsigned char& byte)
-	{
-		unsigned char rval=byte | inb(PORT_IN);
-		outb(PORT_OUT,rval);
-		return rval;
-	}
-	unsigned char operator &=(const unsigned char& byte)
-	{
-		unsigned char rval=byte & inb(PORT_IN);
-		outb(PORT_OUT,rval);
-		return rval;
-	}
-};
-
-#endif
 
 static inline unsigned long cli()
 {
@@ -113,6 +82,40 @@ static inline void sti(unsigned long prev)
              : "memory","cc");
 }
 
+#ifdef __cplusplus
+
+template
+<unsigned short PORT_OUT, unsigned short PORT_IN = PORT_OUT>
+class ByteIO {
+public:
+	operator unsigned char() const
+	{
+		return inb(PORT_IN);
+	}
+	unsigned char operator =(const unsigned char& byte)
+	{
+		outb(PORT_OUT,byte);
+		return byte;
+	}
+	unsigned char operator |=(const unsigned char& byte)
+	{
+		unsigned long _is_interrupt = cli();
+		unsigned char rval=byte | inb(PORT_IN);
+		outb(PORT_OUT,rval);
+		sti(_is_interrupt);
+		return rval;
+	}
+	unsigned char operator &=(const unsigned char& byte)
+	{
+		unsigned long _is_interrupt = cli();
+		unsigned char rval=byte & inb(PORT_IN);
+		outb(PORT_OUT,rval);
+		sti(_is_interrupt);
+		return rval;
+	}
+};
+
+#endif
 
 #define ENTER_ATOMIC() \
 	unsigned long _is_interrupt = cli()

@@ -56,8 +56,12 @@ static void bezbios_irq_idt(unsigned char irqn, void(*irq)(void), unsigned char 
 void bezbios_int_ack(unsigned char IRQ)
 {
 	if(IRQ >= 8)
-		PIC2_CMD = 0x20; //EOI
-	PIC1_CMD = 0x20; //EOI
+	{
+		PIC2_CMD = 0x60+IRQ-8; //EOI
+		PIC1_CMD = 0x60+0x02; //EOI
+	}
+	else
+		PIC1_CMD = 0x60+IRQ; //EOI
 }
 
 static void bezbios_int_default(Isr_stack *stack)
@@ -211,7 +215,11 @@ static void(* volatile irq_handler[16])(Isr_stack*);
 void bezbios_irq_C_handler(Isr_stack *stack)
 {
 	if (stack->irq < 16)
+	{
+		if (stack->irq)
+			outb(0x80,stack->irq);
 		irq_handler[stack->irq](stack);
+	}
 	else if (stack->irq == 0x0101)
 		int1isr(stack);
 	else if (stack->irq == 0x0103)
@@ -253,8 +261,8 @@ void bezbios_init_interrupts(void)
 	PIC1_DAT = 4; // slave on IRQ2
 	PIC2_DAT = 2; // master number 2
 	io_wait(0x01);
-	PIC1_DAT = 0x01; // 8086 mode
-	PIC2_DAT = 0x01; //
+	PIC1_DAT = 0x01 | 0x0c; // 8086 mode
+	PIC2_DAT = 0x01 | 0x08; //
 	io_wait(0x01);
 	PIC1_DAT = 0xff; // disable all interrupts
 	PIC2_DAT = 0xff;

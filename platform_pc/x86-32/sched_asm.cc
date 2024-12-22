@@ -11,6 +11,7 @@ void
 BezBios::Sched::m32ngro::
 switchcontext_int(void * volatile *prev_s, void *next_s, void (*entry_s)(void *),void * val_s) {
 	asm (
+			"pushf\n\t"
 			"test %0, %0\n\t"
 			"jz no_save\n\t"
 			"movl %%esp, (%0)\n\t"
@@ -23,7 +24,7 @@ switchcontext_int(void * volatile *prev_s, void *next_s, void (*entry_s)(void *)
 			"sti\n\t"
 			"jmp *%2\n\t" // call from NULL
 			"no_entry:\n\t"
-			"sti\n\t"
+			"popf\n\t"
 			: : "eax" (prev_s), "ebx" (next_s), "ecx"(entry_s), "i"(nullptr), "edx" (val_s)
 			: "esi","edi","ebp", "memory" );
 }

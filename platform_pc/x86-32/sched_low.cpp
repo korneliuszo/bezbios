@@ -27,8 +27,7 @@ static ThreadControlBlock * current_tcb=nullptr;
 
 void bezbios_sched_switch_context(ThreadControlBlock * nexttask)
 {
-	asm volatile("cli");
-
+	ENTER_ATOMIC();
 	ThreadControlBlock* tid = current_tcb;
 	current_tcb = nexttask;
 
@@ -37,6 +36,7 @@ void bezbios_sched_switch_context(ThreadControlBlock * nexttask)
 
 	BezBios::Sched::m32ngro::
 	switchcontext_int(&tid->stack,current_tcb->stack, entry,current_tcb->val);
+	EXIT_ATOMIC();
 }
 
 ThreadControlBlock * bezbios_sched_get_tid()

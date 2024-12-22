@@ -9,22 +9,27 @@
 #include "io.h"
 
 void BezBios::Sched::Mutex::aquire() {
-	ENTER_ATOMIC();
-	if(locked == bezbios_sched_get_tid())
 	{
-		lock_cnt++;
+		ENTER_ATOMIC();
+		if(locked == bezbios_sched_get_tid())
+		{
+			lock_cnt++;
+			EXIT_ATOMIC();
+			return;
+		}
 		EXIT_ATOMIC();
-		return;
 	}
 	while (locked) {
 		{
+			ENTER_ATOMIC();
 			TCB_LIST wait = {&wthreads};
 			wait.tcb = bezbios_sched_get_tid();
 			bezbios_sched_task_ready(wait.tcb,0);
+			EXIT_ATOMIC();
 			bezbios_sched_switch_context (locked);
 		}
-		asm("cli":::"memory");
 	}
+	ENTER_ATOMIC();
 	locked = bezbios_sched_get_tid();
 	lock_cnt++;
 	EXIT_ATOMIC();
@@ -37,12 +42,12 @@ void BezBios::Sched::Mutex::release() {
 		return;
 	}
 	locked = nullptr;
+	EXIT_ATOMIC();	
 	if(wthreads.prev != &wthreads)
 	{
 		bezbios_sched_task_ready(wthreads.prev->tcb,1);
 		wthreads.prev->unplug();
 	}
-	EXIT_ATOMIC();
 }
 
 
@@ -74,9 +79,10 @@ BezBios::Sched::Mutex::Mutex()
 
 void BezBios::Sched::ConditionVariable::wait()
 {
-	asm volatile("cli":::"memory");
+	ENTER_ATOMIC();	
 	TCB_LIST wait = {&wthreads};
 	wait.tcb = bezbios_sched_get_tid();
+	EXIT_ATOMIC();	
 	bezbios_sched_free_cpu(0);
 	(void)wait;
 }
@@ -98,9 +104,10 @@ bool BezBios::Sched::ConditionVariable::notify_all()
 
 void BezBios::Sched::ConditionVariableSingle::wait()
 {
-	asm volatile("cli":::"memory");
+	ENTER_ATOMIC();	
 	wait_tid = bezbios_sched_get_tid();
 	bezbios_sched_free_cpu(0);
+	EXIT_ATOMIC();	
 }
 
 ThreadControlBlock * BezBios::Sched::ConditionVariableSingle::notify()

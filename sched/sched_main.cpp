@@ -21,20 +21,23 @@ void bezbios_main()
 {
 	bezbios_sched_create_task(&idle_tcb,nullptr,nullptr,nullptr);
 	bezbios_sched_idle_it_is();
-	bezbios_sched_task_ready(&idle_tcb,1); // idle ready means preemtive
+	bezbios_sched_task_ready(&idle_tcb,0); 
+	asm("sti");
 	while(1)
 	{
 		ThreadControlBlock * wait_tid;
-		do {
-			asm("cli");
-			wait_tid = rr_next_task();
-			if (wait_tid != &idle_tcb)
-			{
+		while((wait_tid = rr_next_task())!=&idle_tcb)
+		{
 				bezbios_sched_task_ready(wait_tid, 0);
 				bezbios_sched_switch_context(wait_tid);
-			}
-		} while(wait_tid != &idle_tcb);
+		}
 		{
+			asm("cli");
+			if(rr_next_task()!=&idle_tcb)
+			{
+				asm("sti\n\t");
+				continue;
+			}
 			asm(
 				"sti\n\t"
 				"hlt\n\t"

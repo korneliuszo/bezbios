@@ -26,6 +26,5 @@ void int3isr(Isr_stack *stack)
 	sender.str("ES: ").hex(stack->es).end();
 	sender.str("FS: ").hex(stack->fs).end();
 	sender.str("GS: ").hex(stack->gs).end();
-
 }
 

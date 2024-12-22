@@ -80,7 +80,7 @@ static void timer_head_exit(ThreadControlBlock * tid)
 
 void bezbios_delay_ms(int ms)
 {
-	cli();
+	ENTER_ATOMIC();
 	static Exit_func efunc;
 	efunc.init(timer_head_exit);
 
@@ -112,6 +112,7 @@ void bezbios_delay_ms(int ms)
 
 	wait.timeout = timeout;
 	wait.tcb = bezbios_sched_get_tid();
+	EXIT_ATOMIC();
 
 	bezbios_sched_free_cpu(0);
 }
